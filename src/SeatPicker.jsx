@@ -1,16 +1,15 @@
 import React, { useState } from "react";
 
 const generateGASeats = () => {
-  const rows = [
-    ...Array.from("ABCDEFGHIJKLMNOPQRSTUVWXYZ"),
-    ..."ABCDEF".split("").map((c) => `A${c}`)
-  ];
-  const seatsPerRow = 12; // 12 per section (48 total across 4 sections)
+  const baseRows = Array.from("ABCDEFGHIJKLMNOPQRSTUVWXYZ");
+  const extraRows = ["AA", "BB", "CC", "DD", "EE", "FF"];
+  const allRows = [...baseRows, ...extraRows];
+  const seatsPerRow = 12;
   const sections = ["201", "202", "203", "204"];
   const seats = {};
 
   sections.forEach((section) => {
-    rows.forEach((row) => {
+    allRows.forEach((row) => {
       for (let i = 1; i <= seatsPerRow; i++) {
         const id = `${section}-${row}${i}`;
         seats[id] = {
@@ -24,12 +23,12 @@ const generateGASeats = () => {
     });
   });
 
-  return seats;
+  return { seats, rows: allRows };
 };
 
 export default function SeatPicker({ onContinue }) {
   const [selectedSeats, setSelectedSeats] = useState([]);
-  const seats = generateGASeats();
+  const { seats, rows } = generateGASeats();
 
   const handleClick = (id) => {
     if (!seats[id].available) return;
@@ -45,10 +44,6 @@ export default function SeatPicker({ onContinue }) {
   };
 
   const renderSection = (section) => {
-    const rows = Array.from("ABCDEFGHIJKLMNOPQRSTUVWXYZ").concat(
-      "ABCDEF".split("").map((c) => `A${c}`)
-    );
-
     return (
       <div key={section} style={{ marginBottom: "2rem" }}>
         <h3 style={{ marginBottom: "0.5rem", color: "#333" }}>
