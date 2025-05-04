@@ -1,44 +1,139 @@
 import React, { useState } from "react";
 
+const generateGASeats = () => {
+  const rows = [
+    ...Array.from("ABCDEFGHIJKLMNOPQRSTUVWXYZ"),
+    ..."ABCDEF".split("").map((c) => `A${c}`)
+  ];
+  const seatsPerRow = 12; // 12 per section (48 total across 4 sections)
+  const sections = ["201", "202", "203", "204"];
+  const seats = {};
+
+  sections.forEach((section) => {
+    rows.forEach((row) => {
+      for (let i = 1; i <= seatsPerRow; i++) {
+        const id = `${section}-${row}${i}`;
+        seats[id] = {
+          section,
+          row,
+          seat: i,
+          id,
+          available: true,
+        };
+      }
+    });
+  });
+
+  return seats;
+};
+
 export default function SeatPicker({ onContinue }) {
   const [selectedSeats, setSelectedSeats] = useState([]);
+  const seats = generateGASeats();
 
   const handleClick = (id) => {
+    if (!seats[id].available) return;
     setSelectedSeats((prev) =>
       prev.includes(id) ? prev.filter((s) => s !== id) : [...prev, id]
     );
   };
 
-  const seats = ["A1", "A2", "A3", "B1", "B2", "B3"]; // simplify to start
+  const getColor = (id) => {
+    if (!seats[id].available) return "gray";
+    if (selectedSeats.includes(id)) return "orange";
+    return "blue";
+  };
+
+  const renderSection = (section) => {
+    const rows = Array.from("ABCDEFGHIJKLMNOPQRSTUVWXYZ").concat(
+      "ABCDEF".split("").map((c) => `A${c}`)
+    );
+
+    return (
+      <div key={section} style={{ marginBottom: "2rem" }}>
+        <h3 style={{ marginBottom: "0.5rem", color: "#333" }}>
+          Section {section}
+        </h3>
+        {rows.map((row) => (
+          <div
+            key={`${section}-${row}`}
+            style={{
+              display: "flex",
+              alignItems: "center",
+              marginBottom: "4px",
+            }}
+          >
+            <span style={{ width: 30, textAlign: "right", marginRight: 8 }}>
+              {row}
+            </span>
+            {Array.from({ length: 12 }).map((_, idx) => {
+              const id = `${section}-${row}${idx + 1}`;
+              return (
+                <span
+                  key={id}
+                  title={id}
+                  onClick={() => handleClick(id)}
+                  style={{
+                    display: "inline-block",
+                    width: 16,
+                    height: 16,
+                    margin: "0 2px",
+                    backgroundColor: getColor(id),
+                    borderRadius: "50%",
+                    cursor: "pointer",
+                  }}
+                />
+              );
+            })}
+          </div>
+        ))}
+      </div>
+    );
+  };
 
   return (
-    <div className="text-center">
-      <h2 className="text-xl font-bold mb-4">🎟 Select Your Seats</h2>
-      <svg width="300" height="120">
-        <rect x="0" y="0" width="300" height="30" fill="gray" />
-        <text x="150" y="20" textAnchor="middle" fill="white">STAGE</text>
-        {seats.map((id, idx) => (
-          <circle
-            key={id}
-            cx={50 + (idx % 3) * 50}
-            cy={60 + Math.floor(idx / 3) * 40}
-            r="12"
-            fill={selectedSeats.includes(id) ? "orange" : "blue"}
-            onClick={() => handleClick(id)}
-            style={{ cursor: "pointer" }}
-          />
+    <div
+      style={{
+        maxHeight: "80vh",
+        overflowY: "auto",
+        padding: "1rem",
+        fontFamily: "sans-serif",
+      }}
+    >
+      <h2 style={{ textAlign: "center", marginBottom: "1rem" }}>
+        🎟 Select General Admission Seats
+      </h2>
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "space-between",
+          gap: "2rem",
+          flexWrap: "wrap",
+        }}
+      >
+        {["201", "202", "203", "204"].map((section) => (
+          <div key={section}>{renderSection(section)}</div>
         ))}
-      </svg>
+      </div>
+
       {selectedSeats.length > 0 && (
-        <>
-          <p className="mt-4">Selected: {selectedSeats.join(", ")}</p>
+        <div style={{ textAlign: "center", marginTop: "1.5rem" }}>
+          <p>Selected: {selectedSeats.join(", ")}</p>
           <button
             onClick={() => onContinue(selectedSeats)}
-            className="mt-4 px-4 py-2 bg-blue-500 text-white rounded"
+            style={{
+              padding: "0.5rem 1.5rem",
+              backgroundColor: "#2563eb",
+              color: "white",
+              border: "none",
+              borderRadius: 4,
+              marginTop: 8,
+              cursor: "pointer",
+            }}
           >
             Continue
           </button>
-        </>
+        </div>
       )}
     </div>
   );
