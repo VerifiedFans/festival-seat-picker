@@ -1,15 +1,36 @@
-
 import React, { useState } from "react";
 
-// VIP configuration
+// Aisle gaps per section and row
+const vipAisleGaps = {
+  "102": {
+    0: [3, 4, 5], 1: [3, 4, 5], 2: [4, 5, 6], 3: [4, 5, 6],
+    4: [5, 6, 7], 5: [5, 6, 7], 6: [6, 7, 8], 7: [6, 7, 8],
+    8: [7, 8, 9], 9: [7, 8, 9], 10: [8, 9, 10], 11: [8, 9, 10]
+  },
+  "103": {
+    0: [3, 4, 5], 1: [3, 4, 5], 2: [4, 5, 6], 3: [4, 5, 6],
+    4: [5, 6, 7], 5: [5, 6, 7], 6: [6, 7, 8], 7: [6, 7, 8],
+    8: [7, 8, 9], 9: [7, 8, 9], 10: [8, 9, 10], 11: [8, 9, 10]
+  },
+  "101": {
+    0: [2], 1: [4], 2: [6], 3: [7, 8], 4: [9, 10],
+    5: [11, 12], 6: [12, 13, 14], 7: [14, 15, 16], 8: [14, 15, 16],
+    9: [12, 13, 14], 10: [10, 11, 12], 11: [8, 9, 10], 12: [6, 7, 8]
+  },
+  "104": {
+    0: [0], 1: [0], 2: [0], 3: [0, 1], 4: [0, 1], 5: [0, 1],
+    6: [0, 1, 2], 7: [0, 1, 2], 8: [0, 1, 2], 9: [0, 1, 2],
+    10: [0, 1, 2], 11: [0, 1, 2], 12: [0, 1, 2]
+  }
+};
+
 const vipConfig = {
   "101": [3, 5, 7, 9, 11, 13, 15, 17, 17, 15, 13, 11, 9],
   "102": [8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19],
   "103": [8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19],
-  "104": [3, 5, 7, 9, 11, 13, 15, 17, 17, 15, 13, 11, 9],
+  "104": [3, 5, 7, 9, 11, 13, 15, 17, 17, 15, 13, 11, 9]
 };
 
-// Generate GA seating
 const generateGASeats = () => {
   const baseRows = Array.from("ABCDEFGHIJKLMNOPQRSTUVWXYZ");
   const extraRows = ["AA", "BB", "CC", "DD", "EE", "FF"];
@@ -28,7 +49,7 @@ const generateGASeats = () => {
           seat: i,
           id,
           available: true,
-          type: "GA",
+          type: "GA"
         };
       }
     });
@@ -37,21 +58,20 @@ const generateGASeats = () => {
   return { seats, rows: allRows };
 };
 
-// Generate VIP seating
 const generateVIPSeats = () => {
   const seats = {};
   Object.entries(vipConfig).forEach(([section, seatCounts]) => {
     seatCounts.forEach((count, rowIndex) => {
-      const rowLabel = String.fromCharCode(65 + rowIndex);
+      const row = String.fromCharCode(65 + rowIndex);
       for (let i = 1; i <= count; i++) {
-        const id = `${section}-${rowLabel}${i}`;
+        const id = `${section}-${row}${i}`;
         seats[id] = {
           section,
-          row: rowLabel,
+          row,
           seat: i,
           id,
           available: true,
-          type: "VIP",
+          type: "VIP"
         };
       }
     });
@@ -81,36 +101,17 @@ export default function SeatPicker({ onContinue }) {
   const renderVIPSection = (section) => {
     const seatCounts = vipConfig[section];
     return (
-      <div
-        key={section}
-        style={{
-          display: "flex",
-          flexDirection: "column",
-          alignItems: "center",
-          padding: "0 1rem",
-          minWidth: "220px",
-        }}
-      >
-        <h4 style={{ marginBottom: "0.25rem" }}>VIP {section}</h4>
+      <div key={section} style={{ display: "flex", flexDirection: "column", alignItems: "center", minWidth: "240px" }}>
+        <h4>VIP {section}</h4>
         {seatCounts.map((count, rowIdx) => {
           const row = String.fromCharCode(65 + rowIdx);
-          const totalWidth = 220;
-          const seatWidth = 20;
-          const totalSeatWidth = count * seatWidth;
-          const pad = (totalWidth - totalSeatWidth) / 2;
+          const pad = (240 - count * 20) / 2;
+          const skip = vipAisleGaps[section]?.[rowIdx] || [];
 
           return (
-            <div
-              key={`${section}-${row}`}
-              style={{
-                display: "flex",
-                alignItems: "center",
-                marginBottom: "4px",
-                width: totalWidth,
-                paddingLeft: pad,
-              }}
-            >
+            <div key={`${section}-${row}`} style={{ display: "flex", paddingLeft: pad, marginBottom: 4 }}>
               {Array.from({ length: count }).map((_, i) => {
+                if (skip.includes(i)) return <span key={i} style={{ width: 20 }} />;
                 const id = `${section}-${row}${i + 1}`;
                 return (
                   <span
@@ -124,7 +125,7 @@ export default function SeatPicker({ onContinue }) {
                       margin: "0 2px",
                       backgroundColor: getColor(id),
                       borderRadius: "50%",
-                      cursor: "pointer",
+                      cursor: "pointer"
                     }}
                   />
                 );
@@ -157,7 +158,7 @@ export default function SeatPicker({ onContinue }) {
                     margin: "0 2px",
                     backgroundColor: getColor(id),
                     borderRadius: "50%",
-                    cursor: "pointer",
+                    cursor: "pointer"
                   }}
                 />
               );
@@ -172,32 +173,23 @@ export default function SeatPicker({ onContinue }) {
     <div style={{ maxHeight: "80vh", overflowY: "auto", padding: "1rem" }}>
       <h2 style={{ textAlign: "center", marginBottom: "1rem" }}>🎟 Select Your Seats</h2>
 
-      {/* LED + Stage header */}
+      {/* LED Wall + Stage */}
       <div style={{ textAlign: "center", marginBottom: "1rem" }}>
         <span style={{ backgroundColor: "gray", padding: "0.25rem 1rem", margin: "0 1rem" }}>LED WALL</span>
         <span style={{ backgroundColor: "darkgray", padding: "0.25rem 1rem", margin: "0 1rem" }}>STAGE</span>
         <span style={{ backgroundColor: "gray", padding: "0.25rem 1rem", margin: "0 1rem" }}>LED WALL</span>
       </div>
 
-      {/* VIP Layout */}
-      <div
-        style={{
-          display: "flex",
-          justifyContent: "center",
-          gap: "2rem",
-          flexWrap: "nowrap",
-          marginBottom: "2rem",
-        }}
-      >
+      {/* VIP Sections */}
+      <div style={{ display: "flex", justifyContent: "center", gap: "2rem", marginBottom: "2rem" }}>
         {["101", "102", "103", "104"].map(renderVIPSection)}
       </div>
 
-      {/* GA Layout */}
+      {/* GA Sections */}
       <div style={{ display: "flex", justifyContent: "space-between", gap: "2rem", flexWrap: "wrap" }}>
         {["201", "202", "203", "204"].map(renderGASection)}
       </div>
 
-      {/* Selected Seats + Continue */}
       {selectedSeats.length > 0 && (
         <div style={{ textAlign: "center", marginTop: "1.5rem" }}>
           <p>Selected: {selectedSeats.join(", ")}</p>
@@ -210,7 +202,7 @@ export default function SeatPicker({ onContinue }) {
               border: "none",
               borderRadius: 4,
               marginTop: 8,
-              cursor: "pointer",
+              cursor: "pointer"
             }}
           >
             Continue
