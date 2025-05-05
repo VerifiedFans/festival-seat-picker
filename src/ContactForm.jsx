@@ -22,6 +22,15 @@ export default function ContactForm({ selectedSeats, onSuccess }) {
 
     const { name, email, phone, address } = formData;
 
+    // Debug log
+    console.log("Submitting form with:", {
+      name,
+      email,
+      phone,
+      address,
+      seats: selectedSeats.join(", "),
+    });
+
     if (!name || !email || !phone || !address) {
       setError("Please fill in all fields.");
       setLoading(false);
@@ -36,25 +45,54 @@ export default function ContactForm({ selectedSeats, onSuccess }) {
       seats: selectedSeats.join(", "),
     });
 
-    setLoading(false);
-
     if (error) {
-      console.error(error);
+      console.error("Supabase insert error:", error);
       setError("Failed to submit. Please try again.");
     } else {
-      onSuccess(); // move to thank-you or reset
+      onSuccess();
     }
+
+    setLoading(false);
   };
 
   return (
     <form onSubmit={handleSubmit} style={{ maxWidth: 500, margin: "0 auto" }}>
-      <h2 style={{ textAlign: "center" }}>Your Info</h2>
+      <h2 style={{ textAlign: "center", marginBottom: "1rem" }}>Your Info</h2>
       {error && <p style={{ color: "red" }}>{error}</p>}
 
-      <input name="name" placeholder="Full Name" onChange={handleChange} required style={inputStyle} />
-      <input name="email" type="email" placeholder="Email" onChange={handleChange} required style={inputStyle} />
-      <input name="phone" placeholder="Phone Number" onChange={handleChange} required style={inputStyle} />
-      <textarea name="address" placeholder="Full Address" onChange={handleChange} required style={textareaStyle} />
+      <input
+        name="name"
+        placeholder="Full Name"
+        value={formData.name}
+        onChange={handleChange}
+        required
+        style={inputStyle}
+      />
+      <input
+        name="email"
+        type="email"
+        placeholder="Email"
+        value={formData.email}
+        onChange={handleChange}
+        required
+        style={inputStyle}
+      />
+      <input
+        name="phone"
+        placeholder="Phone Number"
+        value={formData.phone}
+        onChange={handleChange}
+        required
+        style={inputStyle}
+      />
+      <textarea
+        name="address"
+        placeholder="Full Address"
+        value={formData.address}
+        onChange={handleChange}
+        required
+        style={textareaStyle}
+      />
 
       <button type="submit" disabled={loading} style={buttonStyle}>
         {loading ? "Submitting..." : "Submit"}
