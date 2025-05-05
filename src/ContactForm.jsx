@@ -15,12 +15,15 @@ export default function ContactForm({ selectedSeats, onSuccess }) {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setError("");
-    setLoading(true);
+ const { data, error } = await supabase.from("ticket_requests").insert({
+  name,
+  email,
+  phone,
+  address,
+  seats: selectedSeats.join(", "),
+});
 
-    const { name, email, phone, address } = formData;
+console.log("Insert result:", { data, error }); // ⬅️ Add this
 
     // Debug log
     console.log("Submitting form with:", {
