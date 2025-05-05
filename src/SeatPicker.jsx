@@ -17,6 +17,16 @@ const vipRows = [
   { row: "M", seats: [9, 18, 18, 9] },
 ];
 
+// Curved padding for 101 (left) and 104 (right)
+const curvePadding = {
+  "101": {
+    A: 4, B: 5, C: 7, D: 9, E: 11, F: 13, G: 15, H: 16, I: 17, J: 18, K: 19, L: 20, M: 20
+  },
+  "104": {
+    A: 4, B: 5, C: 7, D: 9, E: 11, F: 13, G: 15, H: 16, I: 17, J: 18, K: 19, L: 20, M: 20
+  }
+};
+
 const generateGASeats = () => {
   const baseRows = Array.from("ABCDEFGHIJKLMNOPQRSTUVWXYZ");
   const extraRows = ["AA", "BB", "CC", "DD", "EE", "FF"];
@@ -48,7 +58,7 @@ export default function SeatPicker({ onContinue }) {
   const [selectedSeats, setSelectedSeats] = useState([]);
   const { seats: gaSeats, rows: gaRows } = generateGASeats();
 
-  // ✅ Build VIP seat map
+  // Build VIP seat map
   const vipSeats = {};
   const vipSections = ["101", "102", "103", "104"];
   vipRows.forEach(({ row, seats }) => {
@@ -89,10 +99,19 @@ export default function SeatPicker({ onContinue }) {
         <h3 style={{ textAlign: "center" }}>VIP Sections</h3>
         {vipRows.map(({ row, seats }) => {
           let seatElements = [];
+
           seats.forEach((count, i) => {
+            const section = vipSections[i];
+            const padLeft =
+              section === "101" ? curvePadding["101"][row] : 0;
+            const padRight =
+              section === "104" ? curvePadding["104"][row] : 0;
+
+            const sectionSeats = [];
+
             for (let j = 1; j <= count; j++) {
-              const id = `${vipSections[i]}-${row}${j}`;
-              seatElements.push(
+              const id = `${section}-${row}${j}`;
+              sectionSeats.push(
                 <span
                   key={id}
                   title={id}
@@ -109,6 +128,20 @@ export default function SeatPicker({ onContinue }) {
                 />
               );
             }
+
+            if (padLeft)
+              seatElements.push(
+                <span key={`pad-left-${section}-${row}`} style={{ width: padLeft }} />
+              );
+
+            seatElements.push(...sectionSeats);
+
+            if (padRight)
+              seatElements.push(
+                <span key={`pad-right-${section}-${row}`} style={{ width: padRight }} />
+              );
+
+            // Add aisle after 101, 102, 103
             if (i < 3) {
               seatElements.push(
                 <span key={`aisle-${row}-${i}`} style={{ width: 30 }} />
