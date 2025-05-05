@@ -3,28 +3,26 @@ import SeatPicker from "./SeatPicker";
 import ContactForm from "./ContactForm";
 
 export default function App() {
-  const [step, setStep] = useState(1);
   const [selectedSeats, setSelectedSeats] = useState([]);
+  const [step, setStep] = useState("seats"); // 'seats' or 'form' or 'done'
 
   const handleContinue = (seats) => {
     setSelectedSeats(seats);
-    setStep(2);
+    setStep("form");
   };
 
-  const handleSubmitContactInfo = (contactInfo) => {
-    console.log("Selected Seats:", selectedSeats);
-    console.log("Contact Info:", contactInfo);
-    setStep(3);
+  const handleSuccess = () => {
+    setStep("done");
   };
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center bg-gray-100 p-6">
-      {step === 1 && <SeatPicker onContinue={handleContinue} />}
-      {step === 2 && <ContactForm onSubmit={handleSubmitContactInfo} />}
-      {step === 3 && (
-        <div className="text-center">
-          <h2 className="text-2xl font-bold mb-4">✅ Thank You!</h2>
-          <p>We’ve received your reservation info.</p>
+    <div className="min-h-screen flex items-center justify-center bg-gray-100 p-4">
+      {step === "seats" && <SeatPicker onContinue={handleContinue} />}
+      {step === "form" && <ContactForm selectedSeats={selectedSeats} onSuccess={handleSuccess} />}
+      {step === "done" && (
+        <div style={{ textAlign: "center" }}>
+          <h2>✅ Thanks for your request!</h2>
+          <p>We’ll follow up by email or text soon.</p>
         </div>
       )}
     </div>
