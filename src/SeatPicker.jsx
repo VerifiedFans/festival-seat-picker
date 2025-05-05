@@ -47,7 +47,28 @@ const generateGASeats = () => {
 export default function SeatPicker({ onContinue }) {
   const [selectedSeats, setSelectedSeats] = useState([]);
   const { seats: gaSeats, rows: gaRows } = generateGASeats();
-  const allSeats = { ...gaSeats };
+
+  // ✅ Build VIP seat map
+  const vipSeats = {};
+  const vipSections = ["101", "102", "103", "104"];
+  vipRows.forEach(({ row, seats }) => {
+    seats.forEach((count, sectionIdx) => {
+      const section = vipSections[sectionIdx];
+      for (let i = 1; i <= count; i++) {
+        const id = `${section}-${row}${i}`;
+        vipSeats[id] = {
+          section,
+          row,
+          seat: i,
+          id,
+          available: true,
+          type: "VIP",
+        };
+      }
+    });
+  });
+
+  const allSeats = { ...vipSeats, ...gaSeats };
 
   const handleClick = (id) => {
     if (!allSeats[id]?.available) return;
@@ -59,22 +80,18 @@ export default function SeatPicker({ onContinue }) {
   const getColor = (id) => {
     if (!allSeats[id]?.available) return "gray";
     if (selectedSeats.includes(id)) return "orange";
-    return id.startsWith("1") ? "green" : "blue";
+    return allSeats[id].type === "VIP" ? "green" : "blue";
   };
 
   const renderVIPUnified = () => {
-    const sections = ["101", "102", "103", "104"];
     return (
       <div>
         <h3 style={{ textAlign: "center" }}>VIP Sections</h3>
-        {vipRows.map((rowDef) => {
-          const { row, seats } = rowDef;
+        {vipRows.map(({ row, seats }) => {
           let seatElements = [];
-          let globalIndex = 0;
-
           seats.forEach((count, i) => {
             for (let j = 1; j <= count; j++) {
-              const id = `${sections[i]}-${row}${j}`;
+              const id = `${vipSections[i]}-${row}${j}`;
               seatElements.push(
                 <span
                   key={id}
@@ -91,10 +108,7 @@ export default function SeatPicker({ onContinue }) {
                   }}
                 />
               );
-              globalIndex++;
             }
-
-            // Add aisle after 101, 102, 103 (not after 104)
             if (i < 3) {
               seatElements.push(
                 <span key={`aisle-${row}-${i}`} style={{ width: 30 }} />
