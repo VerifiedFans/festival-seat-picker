@@ -1,30 +1,86 @@
 import React, { useState } from "react";
+import { supabase } from "./supabaseClient";
 
-export default function ContactForm({ onSubmit }) {
+export default function ContactForm({ selectedSeats, onSuccess }) {
   const [formData, setFormData] = useState({
     name: "",
     email: "",
     phone: "",
     address: "",
   });
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
 
-  const handleChange = (e) =>
+  const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
+  };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    onSubmit(formData);
+    setError("");
+    setLoading(true);
+
+    const { name, email, phone, address } = formData;
+
+    if (!name || !email || !phone || !address) {
+      setError("Please fill in all fields.");
+      setLoading(false);
+      return;
+    }
+
+    const { error } = await supabase.from("ticket_requests").insert({
+      name,
+      email,
+      phone,
+      address,
+      seats: selectedSeats.join(", "),
+    });
+
+    setLoading(false);
+
+    if (error) {
+      console.error(error);
+      setError("Failed to submit. Please try again.");
+    } else {
+      onSuccess(); // move to thank-you or reset
+    }
   };
 
   return (
-    <form onSubmit={handleSubmit} className="flex flex-col gap-2 max-w-md w-full">
-      <input name="name" placeholder="Full Name" onChange={handleChange} required />
-      <input name="email" type="email" placeholder="Email" onChange={handleChange} required />
-      <input name="phone" placeholder="Phone Number" onChange={handleChange} required />
-      <input name="address" placeholder="Address" onChange={handleChange} required />
-      <button type="submit" className="bg-blue-500 text-white py-2 rounded mt-2">
-        Submit
+    <form onSubmit={handleSubmit} style={{ maxWidth: 500, margin: "0 auto" }}>
+      <h2 style={{ textAlign: "center" }}>Your Info</h2>
+      {error && <p style={{ color: "red" }}>{error}</p>}
+
+      <input name="name" placeholder="Full Name" onChange={handleChange} required style={inputStyle} />
+      <input name="email" type="email" placeholder="Email" onChange={handleChange} required style={inputStyle} />
+      <input name="phone" placeholder="Phone Number" onChange={handleChange} required style={inputStyle} />
+      <textarea name="address" placeholder="Full Address" onChange={handleChange} required style={textareaStyle} />
+
+      <button type="submit" disabled={loading} style={buttonStyle}>
+        {loading ? "Submitting..." : "Submit"}
       </button>
     </form>
   );
 }
+
+const inputStyle = {
+  width: "100%",
+  marginBottom: 12,
+  padding: 10,
+  fontSize: "1rem",
+};
+
+const textareaStyle = {
+  ...inputStyle,
+  height: 80,
+};
+
+const buttonStyle = {
+  padding: "0.5rem 1.5rem",
+  backgroundColor: "#2563eb",
+  color: "white",
+  border: "none",
+  borderRadius: 4,
+  width: "100%",
+  fontSize: "1rem",
+};
