@@ -46,7 +46,11 @@ export default function ContactForm({ selectedSeats, onSuccess }) {
       );
 
       if (!response.ok) {
-        throw new Error("Webhook call failed");
+  const text = await response.text(); // ← Get server error message
+  console.error("Webhook failed:", text);
+  throw new Error("Webhook call failed");
+}
+
       }
 
       onSuccess(); // show thank-you screen
