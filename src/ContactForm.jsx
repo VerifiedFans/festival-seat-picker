@@ -29,7 +29,7 @@ export default function ContactForm({ selectedSeats, onSuccess }) {
 
     try {
       const response = await fetch(
-        "https://script.google.com/macros/s/AKfycbyxH2zxFnSiCFKl_b3djtJpOdZiBJ9a37bHibKLeOu3cQdw_0WAw-Aux5HIHGJhd9T4/exec",
+        https://script.google.com/macros/s/AKfycbyxH2zxFnSiCFKl_b3djtJpOdZiBJ9a37bHibKLeOu3cQdw_0WAw-Aux5HIHGJhd9T4/exec",
         {
           method: "POST",
           headers: {
