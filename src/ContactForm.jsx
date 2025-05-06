@@ -1,5 +1,5 @@
+
 import React, { useState } from "react";
-import { supabase } from "./supabaseClient";
 
 export default function ContactForm({ selectedSeats, onSuccess }) {
   const [formData, setFormData] = useState({
@@ -15,24 +15,12 @@ export default function ContactForm({ selectedSeats, onSuccess }) {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
- const { data, error } = await supabase.from("ticket_requests").insert({
-  name,
-  email,
-  phone,
-  address,
-  seats: selectedSeats.join(", "),
-});
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setError("");
+    setLoading(true);
 
-console.log("Insert result:", { data, error }); // ⬅️ Add this
-
-    // Debug log
-    console.log("Submitting form with:", {
-      name,
-      email,
-      phone,
-      address,
-      seats: selectedSeats.join(", "),
-    });
+    const { name, email, phone, address } = formData;
 
     if (!name || !email || !phone || !address) {
       setError("Please fill in all fields.");
@@ -40,19 +28,29 @@ console.log("Insert result:", { data, error }); // ⬅️ Add this
       return;
     }
 
-    const { error } = await supabase.from("ticket_requests").insert({
-      name,
-      email,
-      phone,
-      address,
-      seats: selectedSeats.join(", "),
-    });
+    try {
+      const response = await fetch(https://script.google.com/macros/s/AKfycbyxH2zxFnSiCFKl_b3djtJpOdZiBJ9a37bHibKLeOu3cQdw_0WAw-Aux5HIHGJhd9T4/exec, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          name,
+          email,
+          phone,
+          address,
+          seats: selectedSeats.join(", "),
+        }),
+      });
 
-    if (error) {
-      console.error("Supabase insert error:", error);
+      if (!response.ok) {
+        throw new Error("Failed to submit");
+      }
+
+      onSuccess(); // show thank-you screen
+    } catch (err) {
+      console.error("Google Sheets webhook error:", err);
       setError("Failed to submit. Please try again.");
-    } else {
-      onSuccess();
     }
 
     setLoading(false);
