@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 
 export default function ContactForm({ selectedSeats, onSuccess }) {
@@ -29,22 +28,25 @@ export default function ContactForm({ selectedSeats, onSuccess }) {
     }
 
     try {
-      const response = await fetch(https://script.google.com/macros/s/AKfycbyxH2zxFnSiCFKl_b3djtJpOdZiBJ9a37bHibKLeOu3cQdw_0WAw-Aux5HIHGJhd9T4/exec, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          name,
-          email,
-          phone,
-          address,
-          seats: selectedSeats.join(", "),
-        }),
-      });
+      const response = await fetch(
+        "https://script.google.com/macros/s/AKfycbyxH2zxFnSiCFKl_b3djtJpOdZiBJ9a37bHibKLeOu3cQdw_0WAw-Aux5HIHGJhd9T4/exec",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            name,
+            email,
+            phone,
+            address,
+            seats: selectedSeats.join(", "),
+          }),
+        }
+      );
 
       if (!response.ok) {
-        throw new Error("Failed to submit");
+        throw new Error("Webhook call failed");
       }
 
       onSuccess(); // show thank-you screen
