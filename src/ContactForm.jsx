@@ -29,7 +29,7 @@ export default function ContactForm({ selectedSeats, onSuccess }) {
 
     try {
       const response = await fetch(
-        https://script.google.com/macros/s/AKfycbyxH2zxFnSiCFKl_b3djtJpOdZiBJ9a37bHibKLeOu3cQdw_0WAw-Aux5HIHGJhd9T4/exec",
+        "https://script.google.com/macros/s/AKfycbyxH2zxFnSiCFKl_b3djtJpOdZiBJ9a37bHibKLeOu3cQdw_0WAw-Aux5HIHGJhd9T4/exec",
         {
           method: "POST",
           headers: {
@@ -45,12 +45,11 @@ export default function ContactForm({ selectedSeats, onSuccess }) {
         }
       );
 
-      if (!response.ok) {
-  const text = await response.text(); // ← Get server error message
-  console.error("Webhook failed:", text);
-  throw new Error("Webhook call failed");
-}
+      const text = await response.text();
+      console.log("Webhook response:", text);
 
+      if (!response.ok || !text.includes("Success")) {
+        throw new Error("Webhook call failed: " + text);
       }
 
       onSuccess(); // show thank-you screen
