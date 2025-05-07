@@ -28,7 +28,7 @@ export default function ContactForm({ selectedSeats, onSuccess }) {
     }
 
     try {
-      const response = await fetch("https://formspree.io/f/mkgrbrrb, {
+      const response = await fetch("https://formspree.io/f/mkgrbrrb", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
