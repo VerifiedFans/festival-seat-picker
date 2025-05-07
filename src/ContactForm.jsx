@@ -28,34 +28,31 @@ export default function ContactForm({ selectedSeats, onSuccess }) {
     }
 
     try {
-      const response = await fetch(
-        "https://script.google.com/macros/s/AKfycbw3AEK3MMB4uB8yRmo7mnyRxHmJEnmAmefK8cpJs7urA5HxjFv3ar-bxRVdq-nLWHX9/exec",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            name,
-            email,
-            phone,
-            address,
-            seats: selectedSeats.join(", "),
-          }),
-        }
-      );
+      const response = await fetch("https://formspree.io/f/mkgrbrrb, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Accept: "application/json",
+        },
+        body: JSON.stringify({
+          name,
+          email,
+          phone,
+          address,
+          seats: selectedSeats.join(", "),
+        }),
+      });
 
-      const text = await response.text();
-      console.log("Webhook response:", text);
+      const data = await response.json();
 
-      if (!response.ok || !text.includes("Success")) {
-        throw new Error("Webhook call failed: " + text);
+      if (data.ok) {
+        onSuccess();
+      } else {
+        throw new Error("Formspree submission failed");
       }
-
-      onSuccess(); // show thank-you screen
     } catch (err) {
-      console.error("Google Sheets webhook error:", err);
-      setError("Failed to submit. Please try again.");
+      console.error("Form error:", err);
+      setError("Submission failed. Please try again.");
     }
 
     setLoading(false);
