@@ -6,6 +6,7 @@ export default function ContactForm({ selectedSeats, onSuccess }) {
     email: "",
     phone: "",
     address: "",
+    website: "" // 🔥 Honeypot field
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -19,7 +20,15 @@ export default function ContactForm({ selectedSeats, onSuccess }) {
     setError("");
     setLoading(true);
 
-    const { name, email, phone, address } = formData;
+    const { name, email, phone, address, website } = formData;
+
+    // 🐝 🔥 Honeypot Check
+    if (website) {
+      console.warn("Bot detected — honeypot field was filled out.");
+      setError("Submission failed. Try again.");
+      setLoading(false);
+      return;
+    }
 
     if (!name || !email || !phone || !address) {
       setError("Please fill in all fields.");
@@ -62,6 +71,16 @@ export default function ContactForm({ selectedSeats, onSuccess }) {
     <form onSubmit={handleSubmit} style={{ maxWidth: 500, margin: "0 auto" }}>
       <h2 style={{ textAlign: "center", marginBottom: "1rem" }}>Your Info</h2>
       {error && <p style={{ color: "red" }}>{error}</p>}
+
+      {/* 🔥 Honeypot Field (Invisible to users, bots will fill it out) */}
+      <input
+        name="website"
+        type="text"
+        value={formData.website}
+        onChange={handleChange}
+        style={{ display: "none" }}
+        autoComplete="off"
+      />
 
       <input
         name="name"
