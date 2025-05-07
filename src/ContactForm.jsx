@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 
 export default function ContactForm({ selectedSeats, onSuccess }) {
   const [formData, setFormData] = useState({
@@ -6,29 +6,33 @@ export default function ContactForm({ selectedSeats, onSuccess }) {
     email: "",
     phone: "",
     address: "",
-    website: "" // 🔥 Honeypot field
+    gaDays: "all",  // default to "all"
   });
+
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [totalPrice, setTotalPrice] = useState(0);
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
+
+  // 🔄 Calculate ticket pricing
+  useEffect(() => {
+    let vipCount = selectedSeats.filter(seat => seat.startsWith("101") || seat.startsWith("102") || seat.startsWith("103") || seat.startsWith("104")).length;
+    let gaCount = selectedSeats.length - vipCount;
+
+    let gaPrice = formData.gaDays === "all" ? 100 : 35;
+
+    setTotalPrice(vipCount * 130 + gaCount * gaPrice);
+  }, [formData.gaDays, selectedSeats]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
     setLoading(true);
 
-    const { name, email, phone, address, website } = formData;
-
-    // 🐝 🔥 Honeypot Check
-    if (website) {
-      console.warn("Bot detected — honeypot field was filled out.");
-      setError("Submission failed. Try again.");
-      setLoading(false);
-      return;
-    }
+    const { name, email, phone, address, gaDays } = formData;
 
     if (!name || !email || !phone || !address) {
       setError("Please fill in all fields.");
@@ -49,6 +53,8 @@ export default function ContactForm({ selectedSeats, onSuccess }) {
           phone,
           address,
           seats: selectedSeats.join(", "),
+          gaDays,
+          totalPrice,
         }),
       });
 
@@ -71,16 +77,6 @@ export default function ContactForm({ selectedSeats, onSuccess }) {
     <form onSubmit={handleSubmit} style={{ maxWidth: 500, margin: "0 auto" }}>
       <h2 style={{ textAlign: "center", marginBottom: "1rem" }}>Your Info</h2>
       {error && <p style={{ color: "red" }}>{error}</p>}
-
-      {/* 🔥 Honeypot Field (Invisible to users, bots will fill it out) */}
-      <input
-        name="website"
-        type="text"
-        value={formData.website}
-        onChange={handleChange}
-        style={{ display: "none" }}
-        autoComplete="off"
-      />
 
       <input
         name="name"
@@ -115,6 +111,53 @@ export default function ContactForm({ selectedSeats, onSuccess }) {
         required
         style={textareaStyle}
       />
+
+      {/* GA Ticket Selection */}
+      <div style={{ marginBottom: "1rem" }}>
+        <h4>General Admission Days:</h4>
+        <label>
+          <input
+            type="radio"
+            name="gaDays"
+            value="thursday"
+            onChange={handleChange}
+            checked={formData.gaDays === "thursday"}
+          />
+          Thursday
+        </label>
+        <label>
+          <input
+            type="radio"
+            name="gaDays"
+            value="friday"
+            onChange={handleChange}
+            checked={formData.gaDays === "friday"}
+          />
+          Friday
+        </label>
+        <label>
+          <input
+            type="radio"
+            name="gaDays"
+            value="saturday"
+            onChange={handleChange}
+            checked={formData.gaDays === "saturday"}
+          />
+          Saturday
+        </label>
+        <label>
+          <input
+            type="radio"
+            name="gaDays"
+            value="all"
+            onChange={handleChange}
+            checked={formData.gaDays === "all"}
+          />
+          All Three Days
+        </label>
+      </div>
+
+      <p><strong>Total Price:</strong> ${totalPrice}</p>
 
       <button type="submit" disabled={loading} style={buttonStyle}>
         {loading ? "Submitting..." : "Submit"}
