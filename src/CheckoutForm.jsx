@@ -29,6 +29,13 @@ export default function CheckoutForm({ selectedSeats, onConfirm }) {
     }
   }, [selectedSeats]);
 
+  // 📝 Force window exposure every time the state updates
+  useEffect(() => {
+    window.daySelection = daySelection;
+    window.totalPrice = totalPrice;
+    console.log("📝 Exposed to Window:", window.daySelection, window.totalPrice);
+  }, [daySelection, totalPrice]);
+
   // 📝 Logic to handle day changes
   const handleDayChange = (event) => {
     const { value, checked } = event.target;
@@ -55,11 +62,7 @@ export default function CheckoutForm({ selectedSeats, onConfirm }) {
       const pricePerSeat = updatedSelection.all ? 100 : 35 * totalDaysSelected;
       setTotalPrice(pricePerSeat * selectedSeats.length);
 
-      // 🔎 Expose the state to the window
-      window.daySelection = JSON.parse(JSON.stringify(updatedSelection));
-      window.totalPrice = pricePerSeat * selectedSeats.length;
-
-      console.log("📝 Updated State:", window.daySelection, window.totalPrice);
+      console.log("🔄 State Updated:", updatedSelection, pricePerSeat * selectedSeats.length);
 
       return updatedSelection;
     });
