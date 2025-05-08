@@ -14,6 +14,8 @@ export default function CheckoutForm({ selectedSeats, onConfirm }) {
   window.daySelection = daySelection;
   window.totalPrice = totalPrice;
 
+  console.log("Initialized State:", window.daySelection, window.totalPrice);
+
   // 📝 Detect if seats are VIP or GA
   useEffect(() => {
     if (
@@ -59,9 +61,11 @@ export default function CheckoutForm({ selectedSeats, onConfirm }) {
       const pricePerSeat = updatedSelection.all ? 100 : 35 * totalDaysSelected;
       setTotalPrice(pricePerSeat * selectedSeats.length);
 
-      // 📝 Expose the state for debugging
+      // 🔎 Debugging
       window.daySelection = updatedSelection;
       window.totalPrice = pricePerSeat * selectedSeats.length;
+
+      console.log("Updated State:", window.daySelection, window.totalPrice);
 
       return updatedSelection;
     });
