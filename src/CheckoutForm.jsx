@@ -6,8 +6,8 @@ export default function CheckoutForm({ selectedSeats, onConfirm }) {
   const [totalPrice, setTotalPrice] = useState(0);
   const [error, setError] = useState("");
 
+  // 📝 Determine if seats are VIP or GA
   useEffect(() => {
-    // Determine if seats are VIP or GA
     if (
       selectedSeats.some(
         (seat) =>
@@ -25,8 +25,10 @@ export default function CheckoutForm({ selectedSeats, onConfirm }) {
     }
   }, [selectedSeats]);
 
+  // 📝 Logic to handle day changes
   const handleDayChange = (event) => {
     const { value, checked } = event.target;
+    console.log(`Clicked: ${value} — ${checked}`);
     let updatedDays = [...daySelection];
 
     if (value === "all") {
@@ -39,7 +41,6 @@ export default function CheckoutForm({ selectedSeats, onConfirm }) {
       if (checked) {
         updatedDays.push(value);
 
-        // Auto-switch to "All 3 Days" if all three are checked
         if (
           updatedDays.includes("Thursday") &&
           updatedDays.includes("Friday") &&
@@ -52,7 +53,7 @@ export default function CheckoutForm({ selectedSeats, onConfirm }) {
       }
     }
 
-    // 🔄 Update state and price
+    // 📝 Update state and price
     setDaySelection(updatedDays);
 
     if (updatedDays.includes("all")) {
@@ -62,6 +63,7 @@ export default function CheckoutForm({ selectedSeats, onConfirm }) {
     }
   };
 
+  // 📝 Handle form submission
   const handleSubmit = (e) => {
     e.preventDefault();
     if (!error) {
