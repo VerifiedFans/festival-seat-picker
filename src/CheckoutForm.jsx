@@ -41,7 +41,7 @@ export default function CheckoutForm({ selectedSeats, onConfirm }) {
         // If it's not "all", just add the day normally
         updatedDays.push(value);
 
-        // If it goes to 3 days, it should automatically switch to "All 3 Days"
+        // If all three days are picked, auto-switch to All 3 Days
         if (updatedDays.length === 3) {
           updatedDays = ["all"];
         }
@@ -50,10 +50,9 @@ export default function CheckoutForm({ selectedSeats, onConfirm }) {
       }
     }
 
-    // Set the state for selected days
+    // 🔄 Update state and price
     setDaySelection(updatedDays);
 
-    // 🔄 Calculate Price:
     if (updatedDays.includes("all")) {
       setTotalPrice(100 * selectedSeats.length);
     } else {
@@ -94,7 +93,9 @@ export default function CheckoutForm({ selectedSeats, onConfirm }) {
                   type="checkbox"
                   value="Thursday"
                   onChange={handleDayChange}
-                  disabled={daySelection.includes("all")}
+                  disabled={
+                    daySelection.length >= 2 && !daySelection.includes("Thursday")
+                  }
                   checked={daySelection.includes("Thursday")}
                 />
                 Thursday ($35)
@@ -106,7 +107,9 @@ export default function CheckoutForm({ selectedSeats, onConfirm }) {
                   type="checkbox"
                   value="Friday"
                   onChange={handleDayChange}
-                  disabled={daySelection.includes("all")}
+                  disabled={
+                    daySelection.length >= 2 && !daySelection.includes("Friday")
+                  }
                   checked={daySelection.includes("Friday")}
                 />
                 Friday ($35)
@@ -118,7 +121,9 @@ export default function CheckoutForm({ selectedSeats, onConfirm }) {
                   type="checkbox"
                   value="Saturday"
                   onChange={handleDayChange}
-                  disabled={daySelection.includes("all")}
+                  disabled={
+                    daySelection.length >= 2 && !daySelection.includes("Saturday")
+                  }
                   checked={daySelection.includes("Saturday")}
                 />
                 Saturday ($35)
