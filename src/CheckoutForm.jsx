@@ -11,6 +11,7 @@ export default function CheckoutForm({ selectedSeats, onConfirm }) {
   const [totalPrice, setTotalPrice] = useState(0);
 
   useEffect(() => {
+    // 📝 Detect if seats are VIP or GA
     if (
       selectedSeats.some(
         (seat) =>
@@ -28,11 +29,13 @@ export default function CheckoutForm({ selectedSeats, onConfirm }) {
     }
   }, [selectedSeats]);
 
+  // 📝 Logic to handle day changes
   const handleDayChange = (event) => {
     const { value, checked } = event.target;
+    console.log(`Clicked: ${value} - ${checked}`);
 
     if (value === "all") {
-      // If "All 3 Days" is clicked, lock out individual days
+      // If "All 3 Days" is clicked
       setDaySelection({
         Thursday: false,
         Friday: false,
@@ -41,16 +44,14 @@ export default function CheckoutForm({ selectedSeats, onConfirm }) {
       });
       setTotalPrice(checked ? 100 * selectedSeats.length : 0);
     } else {
-      // If an individual day is clicked
+      // If individual days are clicked
       setDaySelection((prev) => {
         const newSelection = { ...prev, [value]: checked };
 
-        // If all three are checked, flip to "All 3 Days"
-        if (
-          newSelection.Thursday &&
-          newSelection.Friday &&
-          newSelection.Saturday
-        ) {
+        // Calculate the total selected days
+        const selectedDays = Object.values(newSelection).filter(Boolean).length;
+
+        if (newSelection.Thursday && newSelection.Friday && newSelection.Saturday) {
           return {
             Thursday: false,
             Friday: false,
@@ -59,15 +60,19 @@ export default function CheckoutForm({ selectedSeats, onConfirm }) {
           };
         }
 
-        // Calculate the price
-        const selectedDays = Object.values(newSelection).filter(Boolean).length;
-        setTotalPrice(35 * selectedDays * selectedSeats.length);
+        // Update price
+        const price = selectedDays * 35 * selectedSeats.length;
+        setTotalPrice(price);
 
-        return newSelection;
+        return {
+          ...newSelection,
+          all: false,
+        };
       });
     }
   };
 
+  // 📝 Handle form submission
   const handleSubmit = (e) => {
     e.preventDefault();
     onConfirm();
