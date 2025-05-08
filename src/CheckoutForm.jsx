@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from "react";
 
 export default function CheckoutForm({ selectedSeats, onConfirm }) {
@@ -9,6 +10,10 @@ export default function CheckoutForm({ selectedSeats, onConfirm }) {
     all: false,
   });
   const [totalPrice, setTotalPrice] = useState(0);
+
+  // 📝 Expose state to the window for debugging
+  window.daySelection = daySelection;
+  window.totalPrice = totalPrice;
 
   // 📝 Detect if seats are VIP or GA
   useEffect(() => {
@@ -54,6 +59,10 @@ export default function CheckoutForm({ selectedSeats, onConfirm }) {
       const totalDaysSelected = Object.values(updatedSelection).filter(Boolean).length;
       const pricePerSeat = updatedSelection.all ? 100 : 35 * totalDaysSelected;
       setTotalPrice(pricePerSeat * selectedSeats.length);
+
+      // 📝 Expose the state for debugging
+      window.daySelection = updatedSelection;
+      window.totalPrice = pricePerSeat * selectedSeats.length;
 
       return updatedSelection;
     });
