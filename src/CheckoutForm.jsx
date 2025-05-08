@@ -10,8 +10,8 @@ export default function CheckoutForm({ selectedSeats, onConfirm }) {
   });
   const [totalPrice, setTotalPrice] = useState(0);
 
+  // 📝 Detect if seats are VIP or GA
   useEffect(() => {
-    // 📝 Detect if seats are VIP or GA
     if (
       selectedSeats.some(
         (seat) =>
@@ -32,44 +32,31 @@ export default function CheckoutForm({ selectedSeats, onConfirm }) {
   // 📝 Logic to handle day changes
   const handleDayChange = (event) => {
     const { value, checked } = event.target;
-    console.log(`Clicked: ${value} - ${checked}`);
 
-    if (value === "all") {
-      // If "All 3 Days" is clicked
-      setDaySelection({
-        Thursday: false,
-        Friday: false,
-        Saturday: false,
-        all: checked,
-      });
-      setTotalPrice(checked ? 100 * selectedSeats.length : 0);
-    } else {
-      // If individual days are clicked
-      setDaySelection((prev) => {
-        const newSelection = { ...prev, [value]: checked };
+    setDaySelection((prev) => {
+      const updatedSelection = { ...prev, [value]: checked };
 
-        // Calculate the total selected days
-        const selectedDays = Object.values(newSelection).filter(Boolean).length;
+      // 🔄 If all three are selected, flip to "All 3 Days"
+      if (
+        updatedSelection.Thursday &&
+        updatedSelection.Friday &&
+        updatedSelection.Saturday
+      ) {
+        updatedSelection.all = true;
+        updatedSelection.Thursday = false;
+        updatedSelection.Friday = false;
+        updatedSelection.Saturday = false;
+      } else {
+        updatedSelection.all = false;
+      }
 
-        if (newSelection.Thursday && newSelection.Friday && newSelection.Saturday) {
-          return {
-            Thursday: false,
-            Friday: false,
-            Saturday: false,
-            all: true,
-          };
-        }
+      // 🔄 Calculate the price
+      const numDays = Object.values(updatedSelection).filter(Boolean).length;
+      const pricePerSeat = updatedSelection.all ? 100 : 35 * numDays;
+      setTotalPrice(pricePerSeat * selectedSeats.length);
 
-        // Update price
-        const price = selectedDays * 35 * selectedSeats.length;
-        setTotalPrice(price);
-
-        return {
-          ...newSelection,
-          all: false,
-        };
-      });
-    }
+      return updatedSelection;
+    });
   };
 
   // 📝 Handle form submission
