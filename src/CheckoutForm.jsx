@@ -4,10 +4,19 @@ export default function CheckoutForm({ selectedSeats, onConfirm }) {
   const [ticketType, setTicketType] = useState("");
   const [daySelection, setDaySelection] = useState([]);
   const [totalPrice, setTotalPrice] = useState(0);
+  const [error, setError] = useState("");
 
   useEffect(() => {
     // Determine if seats are VIP or GA
-    if (selectedSeats.some(seat => seat.includes("101") || seat.includes("102") || seat.includes("103") || seat.includes("104"))) {
+    if (
+      selectedSeats.some(
+        (seat) =>
+          seat.includes("101") ||
+          seat.includes("102") ||
+          seat.includes("103") ||
+          seat.includes("104")
+      )
+    ) {
       setTicketType("VIP");
       setTotalPrice(130 * selectedSeats.length);
     } else {
@@ -23,13 +32,18 @@ export default function CheckoutForm({ selectedSeats, onConfirm }) {
     if (checked) {
       updatedDays.push(value);
     } else {
-      updatedDays = updatedDays.filter(day => day !== value);
+      updatedDays = updatedDays.filter((day) => day !== value);
     }
 
-    setDaySelection(updatedDays);
+    if (updatedDays.length > 2 && value !== "all") {
+      setError("You can only pick up to 2 individual days, or all 3 days.");
+    } else {
+      setError("");
+      setDaySelection(updatedDays);
+    }
 
-    // 💲 Update Price Logic
-    if (updatedDays.length === 3) {
+    // 🔄 Calculate price
+    if (updatedDays.includes("all")) {
       setTotalPrice(100 * selectedSeats.length);
     } else {
       setTotalPrice(35 * updatedDays.length * selectedSeats.length);
@@ -38,8 +52,9 @@ export default function CheckoutForm({ selectedSeats, onConfirm }) {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    // 🎉 Proceed to payment or final submission
-    onConfirm();
+    if (!error) {
+      onConfirm();
+    }
   };
 
   return (
@@ -61,13 +76,14 @@ export default function CheckoutForm({ selectedSeats, onConfirm }) {
       {ticketType === "GA" && (
         <div>
           <div style={{ marginBottom: "1rem" }}>
-            <strong>Select Days:</strong>
+            <strong>Select Days (Pick up to 2 days, or All 3):</strong>
             <div>
               <label>
                 <input
                   type="checkbox"
                   value="Thursday"
                   onChange={handleDayChange}
+                  disabled={daySelection.includes("all")}
                 />
                 Thursday ($35)
               </label>
@@ -78,6 +94,7 @@ export default function CheckoutForm({ selectedSeats, onConfirm }) {
                   type="checkbox"
                   value="Friday"
                   onChange={handleDayChange}
+                  disabled={daySelection.includes("all")}
                 />
                 Friday ($35)
               </label>
@@ -88,6 +105,7 @@ export default function CheckoutForm({ selectedSeats, onConfirm }) {
                   type="checkbox"
                   value="Saturday"
                   onChange={handleDayChange}
+                  disabled={daySelection.includes("all")}
                 />
                 Saturday ($35)
               </label>
@@ -96,13 +114,18 @@ export default function CheckoutForm({ selectedSeats, onConfirm }) {
               <label>
                 <input
                   type="checkbox"
-                  value="All 3 Days"
+                  value="all"
                   onChange={handleDayChange}
+                  disabled={
+                    daySelection.length > 0 && !daySelection.includes("all")
+                  }
                 />
                 All 3 Days ($100)
               </label>
             </div>
           </div>
+
+          {error && <p style={{ color: "red" }}>{error}</p>}
 
           <div style={{ marginBottom: "1rem" }}>
             <strong>Total Price:</strong> ${totalPrice}
@@ -110,7 +133,11 @@ export default function CheckoutForm({ selectedSeats, onConfirm }) {
         </div>
       )}
 
-      <button type="submit" style={buttonStyle}>
+      <button
+        type="submit"
+        style={buttonStyle}
+        disabled={error.length > 0 || totalPrice === 0}
+      >
         Continue to Payment
       </button>
     </form>
