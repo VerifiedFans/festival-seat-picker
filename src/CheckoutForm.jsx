@@ -38,7 +38,13 @@ export default function CheckoutForm({ selectedSeats, onConfirm }) {
     } else {
       if (checked) {
         updatedDays.push(value);
-        if (updatedDays.length === 3) {
+
+        // Auto-switch to "All 3 Days" if all three are checked
+        if (
+          updatedDays.includes("Thursday") &&
+          updatedDays.includes("Friday") &&
+          updatedDays.includes("Saturday")
+        ) {
           updatedDays = ["all"];
         }
       } else {
@@ -46,16 +52,9 @@ export default function CheckoutForm({ selectedSeats, onConfirm }) {
       }
     }
 
-    // 📝 If 2 days are selected, auto-disable the third option
-    if (updatedDays.length === 2 && !updatedDays.includes("all")) {
-      setError("");
-    } else {
-      setError("");
-    }
-
+    // 🔄 Update state and price
     setDaySelection(updatedDays);
 
-    // 🔄 Update price
     if (updatedDays.includes("all")) {
       setTotalPrice(100 * selectedSeats.length);
     } else {
