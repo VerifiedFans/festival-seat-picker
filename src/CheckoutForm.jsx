@@ -2,12 +2,16 @@ import React, { useState, useEffect } from "react";
 
 export default function CheckoutForm({ selectedSeats, onConfirm }) {
   const [ticketType, setTicketType] = useState("");
-  const [daySelection, setDaySelection] = useState([]);
+  const [daySelection, setDaySelection] = useState({
+    Thursday: false,
+    Friday: false,
+    Saturday: false,
+    all: false,
+  });
   const [totalPrice, setTotalPrice] = useState(0);
-  const [error, setError] = useState("");
 
-  // 📝 Determine if seats are VIP or GA
   useEffect(() => {
+    // Determine if seats are VIP or GA
     if (
       selectedSeats.some(
         (seat) =>
@@ -28,47 +32,46 @@ export default function CheckoutForm({ selectedSeats, onConfirm }) {
   // 📝 Logic to handle day changes
   const handleDayChange = (event) => {
     const { value, checked } = event.target;
-    console.log(`Clicked: ${value} — ${checked}`);
-    let updatedDays = [...daySelection];
 
     if (value === "all") {
-      if (checked) {
-        updatedDays = ["all"];
-      } else {
-        updatedDays = [];
-      }
+      setDaySelection({
+        Thursday: false,
+        Friday: false,
+        Saturday: false,
+        all: checked,
+      });
+      setTotalPrice(checked ? 100 * selectedSeats.length : 0);
     } else {
-      if (checked) {
-        updatedDays.push(value);
+      setDaySelection((prev) => {
+        const newSelection = { ...prev, [value]: checked };
 
+        // Check if all 3 are selected
         if (
-          updatedDays.includes("Thursday") &&
-          updatedDays.includes("Friday") &&
-          updatedDays.includes("Saturday")
+          newSelection.Thursday &&
+          newSelection.Friday &&
+          newSelection.Saturday
         ) {
-          updatedDays = ["all"];
+          return {
+            Thursday: false,
+            Friday: false,
+            Saturday: false,
+            all: true,
+          };
         }
-      } else {
-        updatedDays = updatedDays.filter((day) => day !== value);
-      }
-    }
 
-    // 📝 Update state and price
-    setDaySelection(updatedDays);
+        // Update price
+        const selectedDays = Object.values(newSelection).filter(Boolean).length;
+        setTotalPrice(35 * selectedDays * selectedSeats.length);
 
-    if (updatedDays.includes("all")) {
-      setTotalPrice(100 * selectedSeats.length);
-    } else {
-      setTotalPrice(35 * updatedDays.length * selectedSeats.length);
+        return newSelection;
+      });
     }
   };
 
   // 📝 Handle form submission
   const handleSubmit = (e) => {
     e.preventDefault();
-    if (!error) {
-      onConfirm();
-    }
+    onConfirm();
   };
 
   return (
@@ -97,11 +100,8 @@ export default function CheckoutForm({ selectedSeats, onConfirm }) {
                   type="checkbox"
                   value="Thursday"
                   onChange={handleDayChange}
-                  disabled={
-                    daySelection.length >= 2 &&
-                    !daySelection.includes("Thursday")
-                  }
-                  checked={daySelection.includes("Thursday")}
+                  checked={daySelection.Thursday}
+                  disabled={daySelection.all}
                 />
                 Thursday ($35)
               </label>
@@ -112,11 +112,8 @@ export default function CheckoutForm({ selectedSeats, onConfirm }) {
                   type="checkbox"
                   value="Friday"
                   onChange={handleDayChange}
-                  disabled={
-                    daySelection.length >= 2 &&
-                    !daySelection.includes("Friday")
-                  }
-                  checked={daySelection.includes("Friday")}
+                  checked={daySelection.Friday}
+                  disabled={daySelection.all}
                 />
                 Friday ($35)
               </label>
@@ -127,11 +124,8 @@ export default function CheckoutForm({ selectedSeats, onConfirm }) {
                   type="checkbox"
                   value="Saturday"
                   onChange={handleDayChange}
-                  disabled={
-                    daySelection.length >= 2 &&
-                    !daySelection.includes("Saturday")
-                  }
-                  checked={daySelection.includes("Saturday")}
+                  checked={daySelection.Saturday}
+                  disabled={daySelection.all}
                 />
                 Saturday ($35)
               </label>
@@ -142,15 +136,17 @@ export default function CheckoutForm({ selectedSeats, onConfirm }) {
                   type="checkbox"
                   value="all"
                   onChange={handleDayChange}
-                  disabled={daySelection.length > 0 && !daySelection.includes("all")}
-                  checked={daySelection.includes("all")}
+                  checked={daySelection.all}
+                  disabled={
+                    daySelection.Thursday ||
+                    daySelection.Friday ||
+                    daySelection.Saturday
+                  }
                 />
                 All 3 Days ($100)
               </label>
             </div>
           </div>
-
-          {error && <p style={{ color: "red" }}>{error}</p>}
 
           <div style={{ marginBottom: "1rem" }}>
             <strong>Total Price:</strong> ${totalPrice}
@@ -161,7 +157,7 @@ export default function CheckoutForm({ selectedSeats, onConfirm }) {
       <button
         type="submit"
         style={buttonStyle}
-        disabled={error.length > 0 || totalPrice === 0}
+        disabled={totalPrice === 0}
       >
         Continue to Payment
       </button>
