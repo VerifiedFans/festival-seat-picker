@@ -29,39 +29,35 @@ export default function CheckoutForm({ selectedSeats, onConfirm }) {
     const { value, checked } = event.target;
     let updatedDays = [...daySelection];
 
-    // Handle "All" selection
     if (value === "all") {
+      // If "All 3 Days" is checked, clear the other selections
       if (checked) {
         updatedDays = ["all"];
       } else {
         updatedDays = [];
       }
     } else {
-      // Handle single-day selections
       if (checked) {
-        if (daySelection.includes("all")) {
-          setError("You cannot pick individual days with 'All 3 Days'.");
-          return;
-        }
+        // If it's not "all", just add the day normally
         updatedDays.push(value);
+
+        // If it goes to 3 days, it should automatically switch to "All 3 Days"
+        if (updatedDays.length === 3) {
+          updatedDays = ["all"];
+        }
       } else {
         updatedDays = updatedDays.filter((day) => day !== value);
       }
     }
 
-    // Apply the updates
-    if (updatedDays.length > 2 && !updatedDays.includes("all")) {
-      setError("You can only select up to 2 individual days.");
-    } else {
-      setError("");
-      setDaySelection(updatedDays);
+    // Set the state for selected days
+    setDaySelection(updatedDays);
 
-      // 🔄 Calculate price
-      if (updatedDays.includes("all")) {
-        setTotalPrice(100 * selectedSeats.length);
-      } else {
-        setTotalPrice(35 * updatedDays.length * selectedSeats.length);
-      }
+    // 🔄 Calculate Price:
+    if (updatedDays.includes("all")) {
+      setTotalPrice(100 * selectedSeats.length);
+    } else {
+      setTotalPrice(35 * updatedDays.length * selectedSeats.length);
     }
   };
 
@@ -91,7 +87,7 @@ export default function CheckoutForm({ selectedSeats, onConfirm }) {
       {ticketType === "GA" && (
         <div>
           <div style={{ marginBottom: "1rem" }}>
-            <strong>Select Days (Up to 2 days, or All 3 Days):</strong>
+            <strong>Select Days:</strong>
             <div>
               <label>
                 <input
