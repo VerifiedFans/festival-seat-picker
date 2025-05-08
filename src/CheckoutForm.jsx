@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from "react";
 
 export default function CheckoutForm({ selectedSeats, onConfirm }) {
@@ -10,7 +11,6 @@ export default function CheckoutForm({ selectedSeats, onConfirm }) {
   });
   const [totalPrice, setTotalPrice] = useState(0);
 
-  // 📝 Detect if seats are VIP or GA
   useEffect(() => {
     if (
       selectedSeats.some(
@@ -29,37 +29,45 @@ export default function CheckoutForm({ selectedSeats, onConfirm }) {
     }
   }, [selectedSeats]);
 
-  // 📝 Logic to handle day changes
   const handleDayChange = (event) => {
     const { value, checked } = event.target;
 
     setDaySelection((prev) => {
       const updatedSelection = { ...prev, [value]: checked };
 
-      // 🔄 If all three are selected, flip to "All 3 Days"
+      // If all three are checked → flip to "All 3 Days"
       if (
         updatedSelection.Thursday &&
         updatedSelection.Friday &&
         updatedSelection.Saturday
       ) {
-        updatedSelection.all = true;
-        updatedSelection.Thursday = false;
-        updatedSelection.Friday = false;
-        updatedSelection.Saturday = false;
-      } else {
-        updatedSelection.all = false;
+        return {
+          Thursday: false,
+          Friday: false,
+          Saturday: false,
+          all: true,
+        };
       }
 
-      // 🔄 Calculate the price
-      const numDays = Object.values(updatedSelection).filter(Boolean).length;
-      const pricePerSeat = updatedSelection.all ? 100 : 35 * numDays;
+      // If "All 3 Days" is unchecked, clear all
+      if (value === "all") {
+        return {
+          Thursday: false,
+          Friday: false,
+          Saturday: false,
+          all: checked,
+        };
+      }
+
+      // Calculate the price
+      const selectedDays = Object.values(updatedSelection).filter(Boolean).length;
+      const pricePerSeat = updatedSelection.all ? 100 : 35 * selectedDays;
       setTotalPrice(pricePerSeat * selectedSeats.length);
 
       return updatedSelection;
     });
   };
 
-  // 📝 Handle form submission
   const handleSubmit = (e) => {
     e.preventDefault();
     onConfirm();
