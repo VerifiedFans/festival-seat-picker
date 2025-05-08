@@ -29,24 +29,39 @@ export default function CheckoutForm({ selectedSeats, onConfirm }) {
     const { value, checked } = event.target;
     let updatedDays = [...daySelection];
 
-    if (checked) {
-      updatedDays.push(value);
+    // Handle "All" selection
+    if (value === "all") {
+      if (checked) {
+        updatedDays = ["all"];
+      } else {
+        updatedDays = [];
+      }
     } else {
-      updatedDays = updatedDays.filter((day) => day !== value);
+      // Handle single-day selections
+      if (checked) {
+        if (daySelection.includes("all")) {
+          setError("You cannot pick individual days with 'All 3 Days'.");
+          return;
+        }
+        updatedDays.push(value);
+      } else {
+        updatedDays = updatedDays.filter((day) => day !== value);
+      }
     }
 
-    if (updatedDays.length > 2 && value !== "all") {
-      setError("You can only pick up to 2 individual days, or all 3 days.");
+    // Apply the updates
+    if (updatedDays.length > 2 && !updatedDays.includes("all")) {
+      setError("You can only select up to 2 individual days.");
     } else {
       setError("");
       setDaySelection(updatedDays);
-    }
 
-    // 🔄 Calculate price
-    if (updatedDays.includes("all")) {
-      setTotalPrice(100 * selectedSeats.length);
-    } else {
-      setTotalPrice(35 * updatedDays.length * selectedSeats.length);
+      // 🔄 Calculate price
+      if (updatedDays.includes("all")) {
+        setTotalPrice(100 * selectedSeats.length);
+      } else {
+        setTotalPrice(35 * updatedDays.length * selectedSeats.length);
+      }
     }
   };
 
@@ -76,7 +91,7 @@ export default function CheckoutForm({ selectedSeats, onConfirm }) {
       {ticketType === "GA" && (
         <div>
           <div style={{ marginBottom: "1rem" }}>
-            <strong>Select Days (Pick up to 2 days, or All 3):</strong>
+            <strong>Select Days (Up to 2 days, or All 3 Days):</strong>
             <div>
               <label>
                 <input
@@ -84,6 +99,7 @@ export default function CheckoutForm({ selectedSeats, onConfirm }) {
                   value="Thursday"
                   onChange={handleDayChange}
                   disabled={daySelection.includes("all")}
+                  checked={daySelection.includes("Thursday")}
                 />
                 Thursday ($35)
               </label>
@@ -95,6 +111,7 @@ export default function CheckoutForm({ selectedSeats, onConfirm }) {
                   value="Friday"
                   onChange={handleDayChange}
                   disabled={daySelection.includes("all")}
+                  checked={daySelection.includes("Friday")}
                 />
                 Friday ($35)
               </label>
@@ -106,6 +123,7 @@ export default function CheckoutForm({ selectedSeats, onConfirm }) {
                   value="Saturday"
                   onChange={handleDayChange}
                   disabled={daySelection.includes("all")}
+                  checked={daySelection.includes("Saturday")}
                 />
                 Saturday ($35)
               </label>
@@ -116,9 +134,8 @@ export default function CheckoutForm({ selectedSeats, onConfirm }) {
                   type="checkbox"
                   value="all"
                   onChange={handleDayChange}
-                  disabled={
-                    daySelection.length > 0 && !daySelection.includes("all")
-                  }
+                  disabled={daySelection.length > 0 && !daySelection.includes("all")}
+                  checked={daySelection.includes("all")}
                 />
                 All 3 Days ($100)
               </label>
