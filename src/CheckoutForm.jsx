@@ -30,7 +30,6 @@ export default function CheckoutForm({ selectedSeats, onConfirm }) {
     let updatedDays = [...daySelection];
 
     if (value === "all") {
-      // If "All 3 Days" is checked, clear the other selections
       if (checked) {
         updatedDays = ["all"];
       } else {
@@ -38,10 +37,7 @@ export default function CheckoutForm({ selectedSeats, onConfirm }) {
       }
     } else {
       if (checked) {
-        // If it's not "all", just add the day normally
         updatedDays.push(value);
-
-        // If all three days are picked, auto-switch to All 3 Days
         if (updatedDays.length === 3) {
           updatedDays = ["all"];
         }
@@ -50,9 +46,16 @@ export default function CheckoutForm({ selectedSeats, onConfirm }) {
       }
     }
 
-    // 🔄 Update state and price
+    // 📝 If 2 days are selected, auto-disable the third option
+    if (updatedDays.length === 2 && !updatedDays.includes("all")) {
+      setError("");
+    } else {
+      setError("");
+    }
+
     setDaySelection(updatedDays);
 
+    // 🔄 Update price
     if (updatedDays.includes("all")) {
       setTotalPrice(100 * selectedSeats.length);
     } else {
@@ -94,7 +97,8 @@ export default function CheckoutForm({ selectedSeats, onConfirm }) {
                   value="Thursday"
                   onChange={handleDayChange}
                   disabled={
-                    daySelection.length >= 2 && !daySelection.includes("Thursday")
+                    daySelection.length >= 2 &&
+                    !daySelection.includes("Thursday")
                   }
                   checked={daySelection.includes("Thursday")}
                 />
@@ -108,7 +112,8 @@ export default function CheckoutForm({ selectedSeats, onConfirm }) {
                   value="Friday"
                   onChange={handleDayChange}
                   disabled={
-                    daySelection.length >= 2 && !daySelection.includes("Friday")
+                    daySelection.length >= 2 &&
+                    !daySelection.includes("Friday")
                   }
                   checked={daySelection.includes("Friday")}
                 />
@@ -122,7 +127,8 @@ export default function CheckoutForm({ selectedSeats, onConfirm }) {
                   value="Saturday"
                   onChange={handleDayChange}
                   disabled={
-                    daySelection.length >= 2 && !daySelection.includes("Saturday")
+                    daySelection.length >= 2 &&
+                    !daySelection.includes("Saturday")
                   }
                   checked={daySelection.includes("Saturday")}
                 />
