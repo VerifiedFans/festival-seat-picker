@@ -1,32 +1,18 @@
-import React, { useState } from "react";
-import SeatPicker from "./SeatPicker";
+import React from "react";
 import ContactForm from "./ContactForm";
+import SeatPicker from "./SeatPicker";
 
-)}export default function App() {
-  const [selectedSeats, setSelectedSeats] = useState([]);
-  const [step, setStep] = useState("seats"); // seats → form → done
-
-  const handleContinue = (seats) => {
-    setSelectedSeats(seats);
-    setStep("form");
-  };
-
-  const handleSuccess = () => {
-    setStep("done");
-  };
-
+function App() {
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-100 p-4">
-      {step === "seats" && <SeatPicker onContinue={handleContinue} />}
-      {step === "form" && (
-        <ContactForm selectedSeats={selectedSeats} onSuccess={handleSuccess} />
-      )}
-      {step === "done" && (
-        <div style={{ textAlign: "center" }}>
-          <h2>✅ Thanks for your request!</h2>
-          <p>We’ll follow up by email or text soon.</p>
-        </div>
-      )}
+    <div style={{ padding: "2rem" }}>
+      <h1>🎟️ Festival Seat Picker</h1>
+      <SeatPicker />
+      <ContactForm 
+        selectedSeats={["GA-A1", "GA-B2"]} // Example, should come from SeatPicker
+        onConfirm={() => alert("Form Submitted")}
+      />
     </div>
   );
 }
+
+export default App;
