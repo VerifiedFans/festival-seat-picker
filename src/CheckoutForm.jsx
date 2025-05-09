@@ -1,39 +1,33 @@
 import React, { useState, useEffect } from "react";
 
 export default function CheckoutForm({ selectedSeats, onConfirm }) {
-  const [daySelection, setDaySelection] = useState({
-    Thursday: false,
-    Friday: false,
-    Saturday: false,
-    all: false,
-  });
+  // Using an array to track selected days
+  const [selectedDays, setSelectedDays] = useState([]);
   const [totalPrice, setTotalPrice] = useState(0);
 
-  // Recalculate price whenever selections change
+  // Update price whenever selections change
   useEffect(() => {
     calculatePrice();
     
-    // Expose to window for debugging
-    window.daySelection = JSON.parse(JSON.stringify(daySelection));
+    // For debugging
+    window.selectedDays = [...selectedDays];
     window.totalPrice = totalPrice;
-    console.log("window.daySelection →", window.daySelection);
-    console.log("window.totalPrice →", window.totalPrice);
-  }, [daySelection]);
+    console.log("Selected Days:", window.selectedDays);
+    console.log("Total Price:", window.totalPrice);
+  }, [selectedDays]);
 
-  // Simple price calculation function
+  // Calculate the price based on selected days
   const calculatePrice = () => {
     let price = 0;
     
-    if (daySelection.all) {
+    if (selectedDays.length === 0) {
+      price = 0;
+    } else if (selectedDays.length === 3 || selectedDays.includes("all")) {
+      // If all 3 days or "all" option selected, charge package price
       price = 100 * selectedSeats.length;
     } else {
-      const dayCount = [
-        daySelection.Thursday,
-        daySelection.Friday,
-        daySelection.Saturday
-      ].filter(Boolean).length;
-      
-      price = 35 * dayCount * selectedSeats.length;
+      // Otherwise charge per day
+      price = 35 * selectedDays.length * selectedSeats.length;
     }
     
     setTotalPrice(price);
@@ -41,46 +35,57 @@ export default function CheckoutForm({ selectedSeats, onConfirm }) {
   };
 
   // Handle checkbox changes
-  const handleDayChange = (event) => {
-    const { value, checked } = event.target;
-    console.log(`🟢 Checkbox Clicked → ${value}: ${checked}`);
-
-    if (value === "all") {
-      // When "All 3 Days" is clicked
-      if (checked) {
-        setDaySelection({
-          Thursday: false,
-          Friday: false,
-          Saturday: false,
-          all: true
-        });
+  const handleDayToggle = (day) => {
+    // Special handling for "all" option
+    if (day === "all") {
+      if (selectedDays.includes("all")) {
+        // Deselect "all"
+        setSelectedDays([]);
       } else {
-        setDaySelection({
-          ...daySelection,
-          all: false
-        });
+        // Select only "all"
+        setSelectedDays(["all"]);
       }
-    } else {
-      // When individual day is clicked
-      const newSelection = {
-        ...daySelection,
-        [value]: checked
-      };
-      
-      // If all three days are selected, switch to "all"
-      if (
-        newSelection.Thursday && 
-        newSelection.Friday && 
-        newSelection.Saturday
-      ) {
-        newSelection.Thursday = false;
-        newSelection.Friday = false;
-        newSelection.Saturday = false;
-        newSelection.all = true;
-      }
-      
-      setDaySelection(newSelection);
+      return;
     }
+    
+    // If "all" is currently selected, replace it with the clicked day
+    if (selectedDays.includes("all")) {
+      setSelectedDays([day]);
+      return;
+    }
+    
+    // Handle regular day selection/deselection
+    setSelectedDays(prev => {
+      if (prev.includes(day)) {
+        // Remove day if already selected
+        return prev.filter(d => d !== day);
+      } else {
+        // Add day if not selected
+        const newSelection = [...prev, day];
+        
+        // If all three individual days are now selected, switch to "all"
+        if (
+          newSelection.includes("Thursday") && 
+          newSelection.includes("Friday") && 
+          newSelection.includes("Saturday") &&
+          !newSelection.includes("all")
+        ) {
+          return ["all"];
+        }
+        
+        return newSelection;
+      }
+    });
+  };
+
+  // Check if a day is selected
+  const isDaySelected = (day) => {
+    return selectedDays.includes(day);
+  };
+
+  // Check if individual days should be disabled
+  const shouldDisableDay = (day) => {
+    return day !== "all" && selectedDays.includes("all");
   };
 
   return (
@@ -90,10 +95,9 @@ export default function CheckoutForm({ selectedSeats, onConfirm }) {
         <label style={{ display: "block", margin: "8px 0" }}>
           <input
             type="checkbox"
-            value="Thursday"
-            onChange={handleDayChange}
-            checked={daySelection.Thursday}
-            disabled={daySelection.all}
+            onChange={() => handleDayToggle("Thursday")}
+            checked={isDaySelected("Thursday")}
+            disabled={shouldDisableDay("Thursday")}
           />
           {" "}Thursday ($35)
         </label>
@@ -101,10 +105,9 @@ export default function CheckoutForm({ selectedSeats, onConfirm }) {
         <label style={{ display: "block", margin: "8px 0" }}>
           <input
             type="checkbox"
-            value="Friday"
-            onChange={handleDayChange}
-            checked={daySelection.Friday}
-            disabled={daySelection.all}
+            onChange={() => handleDayToggle("Friday")}
+            checked={isDaySelected("Friday")}
+            disabled={shouldDisableDay("Friday")}
           />
           {" "}Friday ($35)
         </label>
@@ -112,10 +115,9 @@ export default function CheckoutForm({ selectedSeats, onConfirm }) {
         <label style={{ display: "block", margin: "8px 0" }}>
           <input
             type="checkbox"
-            value="Saturday"
-            onChange={handleDayChange}
-            checked={daySelection.Saturday}
-            disabled={daySelection.all}
+            onChange={() => handleDayToggle("Saturday")}
+            checked={isDaySelected("Saturday")}
+            disabled={shouldDisableDay("Saturday")}
           />
           {" "}Saturday ($35)
         </label>
@@ -123,9 +125,8 @@ export default function CheckoutForm({ selectedSeats, onConfirm }) {
         <label style={{ display: "block", margin: "8px 0" }}>
           <input
             type="checkbox"
-            value="all"
-            onChange={handleDayChange}
-            checked={daySelection.all}
+            onChange={() => handleDayToggle("all")}
+            checked={isDaySelected("all")}
           />
           {" "}All 3 Days ($100)
         </label>
@@ -134,6 +135,33 @@ export default function CheckoutForm({ selectedSeats, onConfirm }) {
       <div style={{ marginTop: "15px" }}>
         <strong>Total Price: ${totalPrice}</strong>
       </div>
+      
+      {/* Optional: Add a continue button to pass data to ContactForm */}
+      <button 
+        onClick={() => {
+          if (onConfirm) {
+            let daySelection = selectedDays.includes("all") ? "all" : selectedDays.join(",");
+            onConfirm({ 
+              selectedDays: daySelection,
+              totalPrice 
+            });
+          }
+        }}
+        style={{
+          padding: "0.5rem 1.5rem",
+          backgroundColor: "#2563eb",
+          color: "white",
+          border: "none",
+          borderRadius: 4,
+          width: "100%",
+          fontSize: "1rem",
+          marginTop: "15px",
+          cursor: "pointer"
+        }}
+        disabled={selectedDays.length === 0}
+      >
+        Continue
+      </button>
     </div>
   );
 }
