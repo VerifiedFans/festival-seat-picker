@@ -1,25 +1,7 @@
 import React, { useState } from "react";
 import SeatPicker from "./SeatPicker";
 import ContactForm from "./ContactForm";
-// 1. Add this state near the top of your component with your other useState calls
-const [checkoutData, setCheckoutData] = useState(null);
 
-// 2. Find where you're currently showing both forms,
-// and replace that code with this:
-
-{!checkoutData ? (
-  // Show the checkout form first
-  <CheckoutForm 
-    selectedSeats={selectedSeats} 
-    onConfirm={setCheckoutData} 
-  />
-) : (
-  // Then show the contact form with the checkout data
-  <ContactForm 
-    selectedSeats={selectedSeats}
-    selectedDaysData={checkoutData}
-    onSuccess={handleFormSuccess} // Use your existing success handler
-  />
 )}export default function App() {
   const [selectedSeats, setSelectedSeats] = useState([]);
   const [step, setStep] = useState("seats"); // seats → form → done
