@@ -1,17 +1,17 @@
 import React, { useState, useEffect } from "react";
 
-export default function ContactForm({ selectedSeats, onSuccess }) {
+export default function ContactForm({ selectedSeats, selectedDaysData, onSuccess }) {
   const [formData, setFormData] = useState({
     name: "",
     email: "",
     phone: "",
     address: "",
-    gaDays: "all",  // default to "all"
+    gaDays: selectedDaysData?.selectedDays || "all",  // Use data from CheckoutForm or default to "all"
   });
 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
-  const [totalPrice, setTotalPrice] = useState(0);
+  const [totalPrice, setTotalPrice] = useState(selectedDaysData?.totalPrice || 0);
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -22,7 +22,18 @@ export default function ContactForm({ selectedSeats, onSuccess }) {
     let vipCount = selectedSeats.filter(seat => seat.startsWith("101") || seat.startsWith("102") || seat.startsWith("103") || seat.startsWith("104")).length;
     let gaCount = selectedSeats.length - vipCount;
 
-    let gaPrice = formData.gaDays === "all" ? 100 : 35;
+    // Handle both single day and multiple day selections
+    let gaPrice;
+    if (formData.gaDays === "all") {
+      gaPrice = 100;
+    } else if (formData.gaDays.includes(",")) {
+      // Count the number of days if multiple days are selected
+      const dayCount = formData.gaDays.split(",").length;
+      gaPrice = dayCount * 35;
+    } else {
+      // Single day selected
+      gaPrice = 35;
+    }
 
     setTotalPrice(vipCount * 130 + gaCount * gaPrice);
   }, [formData.gaDays, selectedSeats]);
@@ -112,49 +123,14 @@ export default function ContactForm({ selectedSeats, onSuccess }) {
         style={textareaStyle}
       />
 
-      {/* GA Ticket Selection */}
+      {/* Display selected days (read-only) */}
       <div style={{ marginBottom: "1rem" }}>
-        <h4>General Admission Days:</h4>
-        <label>
-          <input
-            type="radio"
-            name="gaDays"
-            value="thursday"
-            onChange={handleChange}
-            checked={formData.gaDays === "thursday"}
-          />
-          Thursday
-        </label>
-        <label>
-          <input
-            type="radio"
-            name="gaDays"
-            value="friday"
-            onChange={handleChange}
-            checked={formData.gaDays === "friday"}
-          />
-          Friday
-        </label>
-        <label>
-          <input
-            type="radio"
-            name="gaDays"
-            value="saturday"
-            onChange={handleChange}
-            checked={formData.gaDays === "saturday"}
-          />
-          Saturday
-        </label>
-        <label>
-          <input
-            type="radio"
-            name="gaDays"
-            value="all"
-            onChange={handleChange}
-            checked={formData.gaDays === "all"}
-          />
-          All Three Days
-        </label>
+        <h4>Selected Days:</h4>
+        <p style={{ fontWeight: "bold" }}>
+          {formData.gaDays === "all" ? "All Three Days" : 
+           formData.gaDays.includes(",") ? formData.gaDays.split(",").join(", ") : 
+           formData.gaDays}
+        </p>
       </div>
 
       <p><strong>Total Price:</strong> ${totalPrice}</p>
