@@ -25,65 +25,69 @@ export default function CheckoutForm({ selectedSeats, onConfirm }) {
     const { value, checked } = event.target;
     console.log(`🟢 Checkbox Clicked → ${value}: ${checked}`);
 
-    setDaySelection((prev) => {
-      const updatedSelection = { ...prev };
+    if (value === "all") {
+      // Handle "All 3 Days" selection
+      const newSelection = {
+        Thursday: false,
+        Friday: false,
+        Saturday: false,
+        all: checked
+      };
+      setDaySelection(newSelection);
       
-      // Handle "All 3 Days" special case
-      if (value === "all") {
-        if (checked) {
-          // If "All 3 Days" is checked, uncheck individual days
-          updatedSelection.Thursday = false;
-          updatedSelection.Friday = false;
-          updatedSelection.Saturday = false;
-          updatedSelection.all = true;
-        } else {
-          updatedSelection.all = false;
-        }
-      } else {
-        // Handle individual day selection
-        updatedSelection[value] = checked;
-        
-        // Check if all three individual days are selected
-        const allDaysSelected = 
-          updatedSelection.Thursday && 
-          updatedSelection.Friday && 
-          updatedSelection.Saturday;
-        
-        if (allDaysSelected) {
-          // Switch to "All 3 Days" option
-          updatedSelection.Thursday = false;
-          updatedSelection.Friday = false;
-          updatedSelection.Saturday = false;
-          updatedSelection.all = true;
-        } else {
-          updatedSelection.all = false;
-        }
-      }
-
-      // Calculate the price based on selection
-      let pricePerSeat;
-      if (updatedSelection.all) {
-        pricePerSeat = 100; // Price for all 3 days
-      } else {
-        // Count selected days
-        const selectedDaysCount = [
-          updatedSelection.Thursday,
-          updatedSelection.Friday,
-          updatedSelection.Saturday
-        ].filter(Boolean).length;
-        pricePerSeat = 35 * selectedDaysCount;
-      }
-      
+      // Update price
+      const pricePerSeat = checked ? 100 : 0;
       const newTotalPrice = pricePerSeat * selectedSeats.length;
       setTotalPrice(newTotalPrice);
       
-      // 🔴 Direct exposure
-      window.daySelection = JSON.parse(JSON.stringify(updatedSelection));
+      // Update window variables
+      window.daySelection = JSON.parse(JSON.stringify(newSelection));
       window.totalPrice = newTotalPrice;
-      console.log("🔄 State Updated:", window.daySelection, window.totalPrice);
+    } else {
+      // Handle individual day selection
+      const newSelection = { 
+        ...daySelection,
+        [value]: checked,
+        // Always ensure "all" is unchecked when changing individual days
+        all: false
+      };
       
-      return updatedSelection;
-    });
+      // Check if all three days are selected
+      if (
+        value !== "all" &&
+        newSelection.Thursday &&
+        newSelection.Friday &&
+        newSelection.Saturday
+      ) {
+        // Switch to "All 3 Days" option
+        newSelection.Thursday = false;
+        newSelection.Friday = false;
+        newSelection.Saturday = false;
+        newSelection.all = true;
+      }
+      
+      setDaySelection(newSelection);
+      
+      // Calculate price
+      let totalDays = 0;
+      if (newSelection.all) {
+        totalDays = 3; // Special package price
+      } else {
+        if (newSelection.Thursday) totalDays++;
+        if (newSelection.Friday) totalDays++;
+        if (newSelection.Saturday) totalDays++;
+      }
+      
+      const pricePerSeat = newSelection.all ? 100 : 35 * totalDays;
+      const newTotalPrice = pricePerSeat * selectedSeats.length;
+      setTotalPrice(newTotalPrice);
+      
+      // Update window variables
+      window.daySelection = JSON.parse(JSON.stringify(newSelection));
+      window.totalPrice = newTotalPrice;
+    }
+    
+    console.log("🔄 State Updated:", window.daySelection, window.totalPrice);
   };
 
   return (
