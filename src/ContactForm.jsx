@@ -59,7 +59,7 @@ export default function ContactForm({ selectedSeats, onConfirm }) {
 
       setSelectedDays(updatedDays);
 
-      // If all three days are selected, automatically switch to 3-Day Special
+      // 🔄 If all three days are selected, automatically switch to 3-Day Special
       if (
         updatedDays.includes("Thursday") &&
         updatedDays.includes("Friday") &&
@@ -121,6 +121,7 @@ export default function ContactForm({ selectedSeats, onConfirm }) {
         style={textareaStyle}
       />
 
+      {/* 🟢 Display VIP Summary */}
       {ticketType === "VIP" && (
         <div style={{ marginBottom: "1rem", border: "1px solid #ccc", padding: "10px" }}>
           <h3>🎟️ VIP Ticket Summary</h3>
@@ -131,6 +132,7 @@ export default function ContactForm({ selectedSeats, onConfirm }) {
         </div>
       )}
 
+      {/* 🔵 Display GA Day Selection */}
       {ticketType === "GA" && (
         <div style={{ marginBottom: "1rem", border: "1px solid #ccc", padding: "10px" }}>
           <h3>🎟️ General Admission Days</h3>
