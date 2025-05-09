@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 
 export default function ContactForm({ selectedSeats, onConfirm }) {
@@ -49,7 +48,6 @@ export default function ContactForm({ selectedSeats, onConfirm }) {
     setDaySelection((prev) => {
       const updatedSelection = { ...prev, [value]: checked };
 
-      // 🔄 If all three days are checked, flip to "All 3 Days"
       if (
         updatedSelection.Thursday &&
         updatedSelection.Friday &&
@@ -64,12 +62,14 @@ export default function ContactForm({ selectedSeats, onConfirm }) {
       }
 
       // 🔄 Calculate the price
-      const daysSelected = Object.keys(updatedSelection).filter(
-        (day) => updatedSelection[day] && day !== "all"
-      ).length;
-
-      const pricePerSeat = updatedSelection.all ? 100 : 35 * daysSelected;
-      setTotalPrice(pricePerSeat * selectedSeats.length);
+      if (updatedSelection.all) {
+        setTotalPrice(100 * selectedSeats.length);
+      } else {
+        const daysSelected = Object.keys(updatedSelection).filter(
+          (day) => updatedSelection[day] && day !== "all"
+        ).length;
+        setTotalPrice(35 * daysSelected * selectedSeats.length);
+      }
 
       return updatedSelection;
     });
@@ -126,9 +126,8 @@ export default function ContactForm({ selectedSeats, onConfirm }) {
         <div style={{ marginBottom: "1rem" }}>
           <h3>VIP Tickets</h3>
           <p>
-            Number of Seats: {selectedSeats.length}
-            <br />
-            Total Price: ${totalPrice}
+            You have chosen {selectedSeats.length} VIP seat(s). <br />
+            Total = ${130 * selectedSeats.length}
           </p>
         </div>
       )}
@@ -144,7 +143,7 @@ export default function ContactForm({ selectedSeats, onConfirm }) {
               checked={daySelection.Thursday}
               disabled={daySelection.all}
             />
-            Thursday ($35)
+            Thursday ($35 per seat)
           </label>
           <br />
           <label>
@@ -155,7 +154,7 @@ export default function ContactForm({ selectedSeats, onConfirm }) {
               checked={daySelection.Friday}
               disabled={daySelection.all}
             />
-            Friday ($35)
+            Friday ($35 per seat)
           </label>
           <br />
           <label>
@@ -166,7 +165,7 @@ export default function ContactForm({ selectedSeats, onConfirm }) {
               checked={daySelection.Saturday}
               disabled={daySelection.all}
             />
-            Saturday ($35)
+            Saturday ($35 per seat)
           </label>
           <br />
           <label>
@@ -176,7 +175,7 @@ export default function ContactForm({ selectedSeats, onConfirm }) {
               onChange={handleDayChange}
               checked={daySelection.all}
             />
-            All 3 Days Special ($100)
+            3-Night General Admission Special ($100 per seat)
           </label>
         </div>
       )}
