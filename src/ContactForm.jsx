@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 
 export default function ContactForm({ selectedSeats, onConfirm }) {
@@ -38,7 +37,7 @@ export default function ContactForm({ selectedSeats, onConfirm }) {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  // 📝 Handle Day Selection (New Logic!)
+  // 📝 Handle Day Selection (Fixed Logic)
   const handleDayChange = (event) => {
     const { value, checked } = event.target;
 
@@ -53,14 +52,19 @@ export default function ContactForm({ selectedSeats, onConfirm }) {
         setTotalPrice(0);
       }
     } else {
+      // Toggle the day in the array
       const updatedDays = checked
         ? [...selectedDays, value]
         : selectedDays.filter((day) => day !== value);
 
       setSelectedDays(updatedDays);
 
-      // 🔄 If all three days are selected, automatically flip to 3-Day Special
-      if (updatedDays.length === 3) {
+      // If all three days are selected, automatically switch to 3-Day Special
+      if (
+        updatedDays.includes("Thursday") &&
+        updatedDays.includes("Friday") &&
+        updatedDays.includes("Saturday")
+      ) {
         setAllDays(true);
         setTotalPrice(100 * selectedSeats.length);
       } else {
