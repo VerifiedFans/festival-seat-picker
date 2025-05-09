@@ -13,10 +13,7 @@ export default function ContactForm({ selectedSeats, onConfirm }) {
   const [totalPrice, setTotalPrice] = useState(0);
   const [allDays, setAllDays] = useState(false);
 
-  // ✅ Display Selected Seats:
-  console.log("Selected Seats:", selectedSeats);
-
-  // 📝 Detect if seats are VIP or GA
+  // ✅ Detect if seats are VIP or GA
   useEffect(() => {
     if (
       selectedSeats.some(
@@ -35,12 +32,12 @@ export default function ContactForm({ selectedSeats, onConfirm }) {
     }
   }, [selectedSeats]);
 
-  // 📝 Handle form input changes
+  // ✅ Handle form input changes
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  // 📝 Handle Day Selection (Fixed Logic)
+  // ✅ Handle Day Selection Logic
   const handleDayChange = (event) => {
     const { value, checked } = event.target;
 
@@ -77,13 +74,37 @@ export default function ContactForm({ selectedSeats, onConfirm }) {
     }
   };
 
-  // 📝 Handle form submission
-  const handleSubmit = (e) => {
+  // ✅ Handle form submission
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log("Form Data Submitted:", formData);
-    console.log("Days Selected:", selectedDays);
-    console.log("Total Price:", totalPrice);
-    onConfirm();
+
+    const payload = {
+      ...formData,
+      seats: selectedSeats.join(", "),
+      days: selectedDays.join(", "),
+      total_price: totalPrice,
+      ticket_type: ticketType,
+    };
+
+    try {
+      const response = await fetch("https://formspree.io/f/mkgrbrrb", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(payload),
+      });
+
+      if (response.ok) {
+        alert("Form submitted successfully!");
+        onConfirm();
+      } else {
+        alert("There was an error. Please try again.");
+      }
+    } catch (error) {
+      console.error("Form submit error:", error);
+      alert("Failed to submit. Please try again.");
+    }
   };
 
   return (
@@ -124,7 +145,6 @@ export default function ContactForm({ selectedSeats, onConfirm }) {
         style={textareaStyle}
       />
 
-      {/* 🟢 Display VIP Summary */}
       {ticketType === "VIP" && (
         <div style={{ marginBottom: "1rem", border: "1px solid #ccc", padding: "10px" }}>
           <h3>🎟️ VIP Ticket Summary</h3>
@@ -138,7 +158,6 @@ export default function ContactForm({ selectedSeats, onConfirm }) {
         </div>
       )}
 
-      {/* 🔵 Display GA Day Selection */}
       {ticketType === "GA" && (
         <div style={{ marginBottom: "1rem", border: "1px solid #ccc", padding: "10px" }}>
           <h3>🎟️ General Admission Days</h3>
