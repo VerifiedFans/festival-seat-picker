@@ -13,6 +13,9 @@ export default function ContactForm({ selectedSeats, onConfirm }) {
   const [totalPrice, setTotalPrice] = useState(0);
   const [allDays, setAllDays] = useState(false);
 
+  // ✅ Display Selected Seats:
+  console.log("Selected Seats:", selectedSeats);
+
   // 📝 Detect if seats are VIP or GA
   useEffect(() => {
     if (
@@ -128,6 +131,9 @@ export default function ContactForm({ selectedSeats, onConfirm }) {
           <p>
             You have chosen <strong>{selectedSeats.length}</strong> VIP seat(s).<br />
             <strong>Total Price:</strong> ${130 * selectedSeats.length}
+          </p>
+          <p>
+            Seats Selected: {selectedSeats.join(", ")}
           </p>
         </div>
       )}
