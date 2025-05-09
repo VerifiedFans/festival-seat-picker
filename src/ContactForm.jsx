@@ -45,7 +45,7 @@ export default function ContactForm({ selectedSeats, onConfirm }) {
       if (checked) {
         setAllDays(true);
         setSelectedDays(["Thursday", "Friday", "Saturday"]);
-        setTotalPrice(100 * selectedSeats.length);
+        setTotalPrice(100 * selectedSeats.length); // $100 per seat
       } else {
         setAllDays(false);
         setSelectedDays([]);
