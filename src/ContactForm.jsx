@@ -13,8 +13,8 @@ export default function ContactForm({ selectedSeats, onConfirm }) {
     Thursday: false,
     Friday: false,
     Saturday: false,
-    all: false,
   });
+  const [allDays, setAllDays] = useState(false);
   const [totalPrice, setTotalPrice] = useState(0);
 
   // 📝 Detect if seats are VIP or GA
@@ -45,31 +45,39 @@ export default function ContactForm({ selectedSeats, onConfirm }) {
   const handleDayChange = (event) => {
     const { value, checked } = event.target;
 
+    if (value === "all") {
+      setAllDays(checked);
+      if (checked) {
+        setDaySelection({
+          Thursday: false,
+          Friday: false,
+          Saturday: false,
+        });
+        setTotalPrice(100 * selectedSeats.length);
+      } else {
+        setTotalPrice(0);
+      }
+      return;
+    }
+
     setDaySelection((prev) => {
       const updatedSelection = { ...prev, [value]: checked };
 
-      if (
-        updatedSelection.Thursday &&
-        updatedSelection.Friday &&
-        updatedSelection.Saturday
-      ) {
-        updatedSelection.Thursday = false;
-        updatedSelection.Friday = false;
-        updatedSelection.Saturday = false;
-        updatedSelection.all = true;
-      } else {
-        updatedSelection.all = false;
-      }
+      // 🔄 If all three days are checked, activate "All 3 Days"
+      const daysArray = Object.keys(updatedSelection).filter(
+        (day) => updatedSelection[day]
+      );
 
-      // 🔄 Calculate the price
-      if (updatedSelection.all) {
+      if (daysArray.length === 3) {
+        setAllDays(true);
         setTotalPrice(100 * selectedSeats.length);
       } else {
-        const daysSelected = Object.keys(updatedSelection).filter(
-          (day) => updatedSelection[day] && day !== "all"
-        ).length;
-        setTotalPrice(35 * daysSelected * selectedSeats.length);
+        setAllDays(false);
+        setTotalPrice(35 * daysArray.length * selectedSeats.length);
       }
+
+      console.log("Updated Day Selection:", updatedSelection);
+      console.log("Total Price:", totalPrice);
 
       return updatedSelection;
     });
@@ -142,7 +150,7 @@ export default function ContactForm({ selectedSeats, onConfirm }) {
               value="Thursday"
               onChange={handleDayChange}
               checked={daySelection.Thursday}
-              disabled={daySelection.all}
+              disabled={allDays}
             />
             Thursday ($35 per seat)
           </label>
@@ -153,7 +161,7 @@ export default function ContactForm({ selectedSeats, onConfirm }) {
               value="Friday"
               onChange={handleDayChange}
               checked={daySelection.Friday}
-              disabled={daySelection.all}
+              disabled={allDays}
             />
             Friday ($35 per seat)
           </label>
@@ -164,7 +172,7 @@ export default function ContactForm({ selectedSeats, onConfirm }) {
               value="Saturday"
               onChange={handleDayChange}
               checked={daySelection.Saturday}
-              disabled={daySelection.all}
+              disabled={allDays}
             />
             Saturday ($35 per seat)
           </label>
@@ -174,7 +182,7 @@ export default function ContactForm({ selectedSeats, onConfirm }) {
               type="checkbox"
               value="all"
               onChange={handleDayChange}
-              checked={daySelection.all}
+              checked={allDays}
             />
             3-Night General Admission Special ($100 per seat)
           </label>
