@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from "react";
 
 export default function ContactForm({ selectedSeats, onConfirm }) {
@@ -115,6 +116,16 @@ export default function ContactForm({ selectedSeats, onConfirm }) {
         required
         style={textareaStyle}
       />
+
+      {ticketType === "VIP" && (
+        <div style={{ marginBottom: "1rem", border: "1px solid #ccc", padding: "10px" }}>
+          <h3>🎟️ VIP Ticket Summary</h3>
+          <p>
+            You have chosen <strong>{selectedSeats.length}</strong> VIP seat(s).<br />
+            <strong>Total Price:</strong> ${130 * selectedSeats.length}
+          </p>
+        </div>
+      )}
 
       {ticketType === "GA" && (
         <div style={{ marginBottom: "1rem", border: "1px solid #ccc", padding: "10px" }}>
