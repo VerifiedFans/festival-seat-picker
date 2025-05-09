@@ -9,13 +9,9 @@ export default function ContactForm({ selectedSeats, onConfirm }) {
   });
 
   const [ticketType, setTicketType] = useState("");
-  const [daySelection, setDaySelection] = useState({
-    Thursday: false,
-    Friday: false,
-    Saturday: false,
-  });
-  const [allDays, setAllDays] = useState(false);
+  const [selectedDays, setSelectedDays] = useState([]);
   const [totalPrice, setTotalPrice] = useState(0);
+  const [allDays, setAllDays] = useState(false);
 
   // 📝 Detect if seats are VIP or GA
   useEffect(() => {
@@ -41,53 +37,43 @@ export default function ContactForm({ selectedSeats, onConfirm }) {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  // 📝 Handle Day Selection
+  // 📝 Handle Day Selection (New Logic!)
   const handleDayChange = (event) => {
     const { value, checked } = event.target;
 
     if (value === "all") {
-      setAllDays(checked);
       if (checked) {
-        setDaySelection({
-          Thursday: false,
-          Friday: false,
-          Saturday: false,
-        });
+        setAllDays(true);
+        setSelectedDays(["Thursday", "Friday", "Saturday"]);
         setTotalPrice(100 * selectedSeats.length);
       } else {
+        setAllDays(false);
+        setSelectedDays([]);
         setTotalPrice(0);
       }
-      return;
-    }
+    } else {
+      const updatedDays = checked
+        ? [...selectedDays, value]
+        : selectedDays.filter((day) => day !== value);
 
-    setDaySelection((prev) => {
-      const updatedSelection = { ...prev, [value]: checked };
+      setSelectedDays(updatedDays);
 
-      // 🔄 If all three days are checked, activate "All 3 Days"
-      const daysArray = Object.keys(updatedSelection).filter(
-        (day) => updatedSelection[day]
-      );
-
-      if (daysArray.length === 3) {
+      // 🔄 If all three days are selected, automatically flip to 3-Day Special
+      if (updatedDays.length === 3) {
         setAllDays(true);
         setTotalPrice(100 * selectedSeats.length);
       } else {
         setAllDays(false);
-        setTotalPrice(35 * daysArray.length * selectedSeats.length);
+        setTotalPrice(35 * updatedDays.length * selectedSeats.length);
       }
-
-      console.log("Updated Day Selection:", updatedSelection);
-      console.log("Total Price:", totalPrice);
-
-      return updatedSelection;
-    });
+    }
   };
 
   // 📝 Handle form submission
   const handleSubmit = (e) => {
     e.preventDefault();
     console.log("Form Data Submitted:", formData);
-    console.log("Days Selected:", daySelection);
+    console.log("Days Selected:", selectedDays);
     console.log("Total Price:", totalPrice);
     onConfirm();
   };
@@ -130,17 +116,6 @@ export default function ContactForm({ selectedSeats, onConfirm }) {
         style={textareaStyle}
       />
 
-      {ticketType === "VIP" && (
-        <div style={{ marginBottom: "1rem", border: "1px solid #ccc", padding: "10px" }}>
-          <h3>🎟️ VIP Tickets</h3>
-          <p>
-            You have chosen <strong>{selectedSeats.length}</strong> VIP seat(s).
-            <br />
-            <strong>Total Price:</strong> ${130 * selectedSeats.length}
-          </p>
-        </div>
-      )}
-
       {ticketType === "GA" && (
         <div style={{ marginBottom: "1rem", border: "1px solid #ccc", padding: "10px" }}>
           <h3>🎟️ General Admission Days</h3>
@@ -149,7 +124,7 @@ export default function ContactForm({ selectedSeats, onConfirm }) {
               type="checkbox"
               value="Thursday"
               onChange={handleDayChange}
-              checked={daySelection.Thursday}
+              checked={selectedDays.includes("Thursday")}
               disabled={allDays}
             />
             Thursday ($35 per seat)
@@ -160,7 +135,7 @@ export default function ContactForm({ selectedSeats, onConfirm }) {
               type="checkbox"
               value="Friday"
               onChange={handleDayChange}
-              checked={daySelection.Friday}
+              checked={selectedDays.includes("Friday")}
               disabled={allDays}
             />
             Friday ($35 per seat)
@@ -171,7 +146,7 @@ export default function ContactForm({ selectedSeats, onConfirm }) {
               type="checkbox"
               value="Saturday"
               onChange={handleDayChange}
-              checked={daySelection.Saturday}
+              checked={selectedDays.includes("Saturday")}
               disabled={allDays}
             />
             Saturday ($35 per seat)
