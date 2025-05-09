@@ -123,18 +123,19 @@ export default function ContactForm({ selectedSeats, onConfirm }) {
       />
 
       {ticketType === "VIP" && (
-        <div style={{ marginBottom: "1rem" }}>
-          <h3>VIP Tickets</h3>
+        <div style={{ marginBottom: "1rem", border: "1px solid #ccc", padding: "10px" }}>
+          <h3>🎟️ VIP Tickets</h3>
           <p>
-            You have chosen {selectedSeats.length} VIP seat(s). <br />
-            Total = ${130 * selectedSeats.length}
+            You have chosen <strong>{selectedSeats.length}</strong> VIP seat(s).
+            <br />
+            <strong>Total Price:</strong> ${130 * selectedSeats.length}
           </p>
         </div>
       )}
 
       {ticketType === "GA" && (
-        <div style={{ marginBottom: "1rem" }}>
-          <h3>General Admission Days</h3>
+        <div style={{ marginBottom: "1rem", border: "1px solid #ccc", padding: "10px" }}>
+          <h3>🎟️ General Admission Days</h3>
           <label>
             <input
               type="checkbox"
@@ -180,7 +181,7 @@ export default function ContactForm({ selectedSeats, onConfirm }) {
         </div>
       )}
 
-      <div style={{ marginBottom: "1rem" }}>
+      <div style={{ marginBottom: "1rem", fontSize: "1.2rem" }}>
         <strong>Total Price:</strong> ${totalPrice}
       </div>
 
