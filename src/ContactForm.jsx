@@ -74,7 +74,7 @@ export default function ContactForm({ selectedSeats, onConfirm }) {
     }
   };
 
-  // ✅ Handle form submission
+  // ✅ Handle form submission to Formspree
   const handleSubmit = async (e) => {
     e.preventDefault();
 
