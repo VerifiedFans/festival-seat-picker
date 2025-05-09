@@ -9,57 +9,70 @@ export default function CheckoutForm({ selectedSeats, onConfirm }) {
   });
   const [totalPrice, setTotalPrice] = useState(0);
 
-  // 📝 Force window exposure every time the state updates
+  // Recalculate price whenever selections change
   useEffect(() => {
-    console.log("🔄 Running useEffect to expose window variables.");
+    calculatePrice();
     
-    // Directly attach to the window object
+    // Expose to window for debugging
     window.daySelection = JSON.parse(JSON.stringify(daySelection));
     window.totalPrice = totalPrice;
-    // Debugging logs to verify
     console.log("window.daySelection →", window.daySelection);
     console.log("window.totalPrice →", window.totalPrice);
-  }, [daySelection, totalPrice]);
+  }, [daySelection]);
 
+  // Simple price calculation function
+  const calculatePrice = () => {
+    let price = 0;
+    
+    if (daySelection.all) {
+      price = 100 * selectedSeats.length;
+    } else {
+      const dayCount = [
+        daySelection.Thursday,
+        daySelection.Friday,
+        daySelection.Saturday
+      ].filter(Boolean).length;
+      
+      price = 35 * dayCount * selectedSeats.length;
+    }
+    
+    setTotalPrice(price);
+    return price;
+  };
+
+  // Handle checkbox changes
   const handleDayChange = (event) => {
     const { value, checked } = event.target;
     console.log(`🟢 Checkbox Clicked → ${value}: ${checked}`);
 
     if (value === "all") {
-      // Handle "All 3 Days" selection
-      const newSelection = {
-        Thursday: false,
-        Friday: false,
-        Saturday: false,
-        all: checked
-      };
-      setDaySelection(newSelection);
-      
-      // Update price
-      const pricePerSeat = checked ? 100 : 0;
-      const newTotalPrice = pricePerSeat * selectedSeats.length;
-      setTotalPrice(newTotalPrice);
-      
-      // Update window variables
-      window.daySelection = JSON.parse(JSON.stringify(newSelection));
-      window.totalPrice = newTotalPrice;
+      // When "All 3 Days" is clicked
+      if (checked) {
+        setDaySelection({
+          Thursday: false,
+          Friday: false,
+          Saturday: false,
+          all: true
+        });
+      } else {
+        setDaySelection({
+          ...daySelection,
+          all: false
+        });
+      }
     } else {
-      // Handle individual day selection
-      const newSelection = { 
+      // When individual day is clicked
+      const newSelection = {
         ...daySelection,
-        [value]: checked,
-        // Always ensure "all" is unchecked when changing individual days
-        all: false
+        [value]: checked
       };
       
-      // Check if all three days are selected
+      // If all three days are selected, switch to "all"
       if (
-        value !== "all" &&
-        newSelection.Thursday &&
-        newSelection.Friday &&
+        newSelection.Thursday && 
+        newSelection.Friday && 
         newSelection.Saturday
       ) {
-        // Switch to "All 3 Days" option
         newSelection.Thursday = false;
         newSelection.Friday = false;
         newSelection.Saturday = false;
@@ -67,76 +80,60 @@ export default function CheckoutForm({ selectedSeats, onConfirm }) {
       }
       
       setDaySelection(newSelection);
-      
-      // Calculate price
-      let totalDays = 0;
-      if (newSelection.all) {
-        totalDays = 3; // Special package price
-      } else {
-        if (newSelection.Thursday) totalDays++;
-        if (newSelection.Friday) totalDays++;
-        if (newSelection.Saturday) totalDays++;
-      }
-      
-      const pricePerSeat = newSelection.all ? 100 : 35 * totalDays;
-      const newTotalPrice = pricePerSeat * selectedSeats.length;
-      setTotalPrice(newTotalPrice);
-      
-      // Update window variables
-      window.daySelection = JSON.parse(JSON.stringify(newSelection));
-      window.totalPrice = newTotalPrice;
     }
-    
-    console.log("🔄 State Updated:", window.daySelection, window.totalPrice);
   };
 
   return (
     <div>
       <h2>Select Days</h2>
-      <label>
-        <input
-          type="checkbox"
-          value="Thursday"
-          onChange={handleDayChange}
-          checked={daySelection.Thursday}
-          disabled={daySelection.all}
-        />
-        Thursday ($35)
-      </label>
-      <br />
-      <label>
-        <input
-          type="checkbox"
-          value="Friday"
-          onChange={handleDayChange}
-          checked={daySelection.Friday}
-          disabled={daySelection.all}
-        />
-        Friday ($35)
-      </label>
-      <br />
-      <label>
-        <input
-          type="checkbox"
-          value="Saturday"
-          onChange={handleDayChange}
-          checked={daySelection.Saturday}
-          disabled={daySelection.all}
-        />
-        Saturday ($35)
-      </label>
-      <br />
-      <label>
-        <input
-          type="checkbox"
-          value="all"
-          onChange={handleDayChange}
-          checked={daySelection.all}
-        />
-        All 3 Days ($100)
-      </label>
-      <br />
-      <strong>Total Price: ${totalPrice}</strong>
+      <div>
+        <label style={{ display: "block", margin: "8px 0" }}>
+          <input
+            type="checkbox"
+            value="Thursday"
+            onChange={handleDayChange}
+            checked={daySelection.Thursday}
+            disabled={daySelection.all}
+          />
+          {" "}Thursday ($35)
+        </label>
+        
+        <label style={{ display: "block", margin: "8px 0" }}>
+          <input
+            type="checkbox"
+            value="Friday"
+            onChange={handleDayChange}
+            checked={daySelection.Friday}
+            disabled={daySelection.all}
+          />
+          {" "}Friday ($35)
+        </label>
+        
+        <label style={{ display: "block", margin: "8px 0" }}>
+          <input
+            type="checkbox"
+            value="Saturday"
+            onChange={handleDayChange}
+            checked={daySelection.Saturday}
+            disabled={daySelection.all}
+          />
+          {" "}Saturday ($35)
+        </label>
+        
+        <label style={{ display: "block", margin: "8px 0" }}>
+          <input
+            type="checkbox"
+            value="all"
+            onChange={handleDayChange}
+            checked={daySelection.all}
+          />
+          {" "}All 3 Days ($100)
+        </label>
+      </div>
+      
+      <div style={{ marginTop: "15px" }}>
+        <strong>Total Price: ${totalPrice}</strong>
+      </div>
     </div>
   );
 }
