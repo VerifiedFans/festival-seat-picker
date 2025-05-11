@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
-
+console.log("Selected Seats:", selectedSeats);
+console.log("Number of Seats:", selectedSeats.length);
 export default function ContactForm({ selectedSeats, onConfirm }) {
   const [formData, setFormData] = useState({
     name: "",
