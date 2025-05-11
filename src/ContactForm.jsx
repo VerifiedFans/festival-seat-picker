@@ -52,7 +52,6 @@ export default function ContactForm({ selectedSeats, onConfirm }) {
         setTotalPrice(0);
       }
     } else {
-      // Toggle the day in the array
       const updatedDays = checked
         ? [...selectedDays, value]
         : selectedDays.filter((day) => day !== value);
@@ -74,10 +73,9 @@ export default function ContactForm({ selectedSeats, onConfirm }) {
     }
   };
 
-  // ✅ Handle form submission to Formspree
+  // ✅ Handle form submission
   const handleSubmit = async (e) => {
     e.preventDefault();
-
     const payload = {
       ...formData,
       seats: selectedSeats.join(", "),
@@ -145,23 +143,8 @@ export default function ContactForm({ selectedSeats, onConfirm }) {
         style={textareaStyle}
       />
 
-      {/* 🟢 Display VIP Summary */}
-      {ticketType === "VIP" && (
-        <div style={{ marginBottom: "1rem", border: "1px solid #ccc", padding: "10px" }}>
-          <h3>🎟️ VIP Ticket Summary</h3>
-          <p>
-            You have chosen <strong>{selectedSeats.length}</strong> VIP seat(s).<br />
-            <strong>Total Price:</strong> ${130 * selectedSeats.length}
-          </p>
-          <p>
-            Seats Selected: {selectedSeats.join(", ")}
-          </p>
-        </div>
-      )}
-
-      {/* 🔵 Display GA Day Selection */}
       {ticketType === "GA" && (
-        <div style={{ marginBottom: "1rem", border: "1px solid #ccc", padding: "10px" }}>
+        <div style={{ marginBottom: "1rem" }}>
           <h3>🎟️ General Admission Days</h3>
           <label>
             <input
