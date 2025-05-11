@@ -30,6 +30,8 @@ export default function ContactForm({ selectedSeats, onConfirm }) {
     } else {
       setTicketType("GA");
       setTotalPrice(0); // Reset for GA
+      console.log("Updated Days:", updatedDays); // Should be 1 item if 1 day is selected
+console.log("Total Price Calculation:", 35 * updatedDays.length * selectedSeats.length);
     }
   }, [selectedSeats]);
 
