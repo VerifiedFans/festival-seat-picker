@@ -1,18 +1,15 @@
-import React from "react";
-import ContactForm from "./ContactForm";
+import React, { useState } from "react";
 import SeatPicker from "./SeatPicker";
+import ContactForm from "./ContactForm";
 
-function App() {
+export default function App() {
+  const [selectedSeats, setSelectedSeats] = useState([]);
+
   return (
-    <div style={{ padding: "2rem" }}>
-      <h1>🎟️ Festival Seat Picker</h1>
-      <SeatPicker />
-      <ContactForm 
-        selectedSeats={["GA-A1", "GA-B2"]} // Example, should come from SeatPicker
-        onConfirm={() => alert("Form Submitted")}
-      />
+    <div className="App">
+      <h1>🎟 Singing in the Smokies Ticket Selector</h1>
+      <SeatPicker onSeatSelect={setSelectedSeats} />
+      <ContactForm selectedSeats={selectedSeats} />
     </div>
   );
 }
-
-export default App;
