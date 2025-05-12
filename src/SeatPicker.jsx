@@ -1,264 +1,95 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 
-// Unified VIP layout definition
-const vipRows = [
-  { row: "A", seats: [3, 8, 8, 3] },
-  { row: "B", seats: [5, 9, 9, 5] },
-  { row: "C", seats: [7, 10, 10, 7] },
-  { row: "D", seats: [9, 11, 11, 9] },
-  { row: "E", seats: [11, 12, 12, 11] },
-  { row: "F", seats: [13, 13, 13, 13] },
-  { row: "G", seats: [15, 14, 14, 15] },
-  { row: "H", seats: [17, 15, 15, 17] },
-  { row: "I", seats: [17, 16, 16, 17] },
-  { row: "J", seats: [15, 17, 17, 15] },
-  { row: "K", seats: [13, 18, 18, 13] },
-  { row: "L", seats: [11, 19, 19, 11] },
-  { row: "M", seats: [9, 18, 18, 9] },
-];
-
-const curvePadding = {
-  "101": {
-    A: 4, B: 5, C: 7, D: 9, E: 11, F: 13, G: 15, H: 16, I: 17, J: 18, K: 19, L: 20, M: 20,
-  },
-  "104": {
-    A: 4, B: 5, C: 7, D: 9, E: 11, F: 13, G: 15, H: 16, I: 17, J: 18, K: 19, L: 20, M: 20,
-  },
-};
-
-const generateGASeats = () => {
-  const baseRows = Array.from("ABCDEFGHIJKLMNOPQRSTUVWXYZ");
-  const extraRows = ["AA", "BB", "CC", "DD", "EE", "FF"];
-  const allRows = [...baseRows, ...extraRows];
-  const seatsPerRow = 12;
-  const sections = ["201", "202", "203", "204"];
-  const seats = {};
-
-  sections.forEach((section) => {
-    allRows.forEach((row) => {
-      for (let i = 1; i <= seatsPerRow; i++) {
-        const id = `${section}-${row}${i}`;
-        seats[id] = {
-          section,
-          row,
-          seat: i,
-          id,
-          available: true,
-          type: "GA",
-        };
-      }
-    });
-  });
-
-  return { seats, rows: allRows };
-};
-
-export default function SeatPicker({ onContinue }) {
+export default function SeatPicker({ onSeatSelect }) {
   const [selectedSeats, setSelectedSeats] = useState([]);
-  const { seats: gaSeats, rows: gaRows } = generateGASeats();
 
-  const vipSeats = {};
-  const vipSections = ["101", "102", "103", "104"];
-  vipRows.forEach(({ row, seats }) => {
-    seats.forEach((count, sectionIdx) => {
-      const section = vipSections[sectionIdx];
-      for (let i = 1; i <= count; i++) {
-        const id = `${section}-${row}${i}`;
-        vipSeats[id] = {
-          section,
-          row,
-          seat: i,
-          id,
-          available: true,
-          type: "VIP",
-        };
-      }
-    });
-  });
-
-  const allSeats = { ...vipSeats, ...gaSeats };
-
-  const handleClick = (id) => {
-    if (!allSeats[id]?.available) return;
-    setSelectedSeats((prev) =>
-      prev.includes(id) ? prev.filter((s) => s !== id) : [...prev, id]
-    );
+  const seats = {
+    "101-A1": { section: "VIP", available: true },
+    "101-A2": { section: "VIP", available: true },
+    "102-B5": { section: "VIP", available: true },
+    "203-C15": { section: "GA", available: true },
+    "203-C16": { section: "GA", available: true },
+    "202-D7": { section: "GA", available: true },
   };
+
+  const handleSeatClick = (seatId) => {
+    console.log("🪑 Clicked seat:", seatId);
+
+    if (selectedSeats.includes(seatId)) {
+      // If the seat is already selected, remove it
+      setSelectedSeats(selectedSeats.filter((id) => id !== seatId));
+    } else {
+      // If the seat is not selected, add it
+      setSelectedSeats([...selectedSeats, seatId]);
+    }
+  };
+
+  useEffect(() => {
+    console.log("🚀 Sending selected seats to parent:", selectedSeats);
+    onSeatSelect(selectedSeats);
+  }, [selectedSeats, onSeatSelect]);
 
   const getColor = (id) => {
-    if (!allSeats[id]?.available) return "gray";
     if (selectedSeats.includes(id)) return "orange";
-    return allSeats[id].type === "VIP" ? "green" : "blue";
-  };
-
-  const renderVIPUnified = () => {
-    return (
-      <div>
-        <h3 style={{ textAlign: "center" }}>VIP Sections</h3>
-        {vipRows.map(({ row, seats }) => {
-          let seatElements = [];
-
-          seats.forEach((count, i) => {
-            const section = vipSections[i];
-            const padLeft = section === "101" ? curvePadding["101"][row] : 0;
-            const padRight = section === "104" ? curvePadding["104"][row] : 0;
-
-            const seatRotation =
-              section === "101"
-                ? "rotate(-15deg)"
-                : section === "104"
-                ? "rotate(15deg)"
-                : "none";
-
-            const sectionSeats = [];
-
-            for (let j = 1; j <= count; j++) {
-              const id = `${section}-${row}${j}`;
-              sectionSeats.push(
-                <span
-                  key={id}
-                  title={id}
-                  onClick={() => handleClick(id)}
-                  style={{
-                    display: "inline-block",
-                    width: 16,
-                    height: 16,
-                    margin: "0 2px",
-                    backgroundColor: getColor(id),
-                    borderRadius: "50%",
-                    cursor: "pointer",
-                    transform: seatRotation,
-                  }}
-                />
-              );
-            }
-
-            if (padLeft)
-              seatElements.push(
-                <span key={`pad-left-${section}-${row}`} style={{ width: padLeft }} />
-              );
-
-            seatElements.push(...sectionSeats);
-
-            if (padRight)
-              seatElements.push(
-                <span key={`pad-right-${section}-${row}`} style={{ width: padRight }} />
-              );
-
-            if (i < 3) {
-              seatElements.push(
-                <span key={`aisle-${row}-${i}`} style={{ width: 30 }} />
-              );
-            }
-          });
-
-          return (
-            <div
-              key={`vip-row-${row}`}
-              style={{
-                display: "flex",
-                justifyContent: "center",
-                alignItems: "center",
-                marginBottom: 4,
-              }}
-            >
-              <span style={{ width: 20, marginRight: 6 }}>{row}</span>
-              {seatElements}
-            </div>
-          );
-        })}
-      </div>
-    );
-  };
-
-  const renderGASection = (section) => {
-    return (
-      <div key={section} style={{ marginBottom: "2rem" }}>
-        <h3 style={{ marginBottom: "0.5rem", color: "#333" }}>Section {section}</h3>
-        {gaRows.map((row) => (
-          <div
-            key={`${section}-${row}`}
-            style={{ display: "flex", alignItems: "center", marginBottom: "4px" }}
-          >
-            <span style={{ width: 30, textAlign: "right", marginRight: 8 }}>{row}</span>
-            {Array.from({ length: 12 }).map((_, idx) => {
-              const id = `${section}-${row}${idx + 1}`;
-              return (
-                <span
-                  key={id}
-                  title={id}
-                  onClick={() => handleClick(id)}
-                  style={{
-                    display: "inline-block",
-                    width: 16,
-                    height: 16,
-                    margin: "0 2px",
-                    backgroundColor: getColor(id),
-                    borderRadius: "50%",
-                    cursor: "pointer",
-                  }}
-                />
-              );
-            })}
-          </div>
-        ))}
-      </div>
-    );
+    if (!seats[id].available) return "gray";
+    return seats[id].section === "VIP" ? "green" : "blue";
   };
 
   return (
-    <div style={{ maxHeight: "80vh", overflowY: "auto", padding: "1rem" }}>
-      <h2 style={{ textAlign: "center", marginBottom: "1rem" }}>
-        🎟 Select Your Seats
-      </h2>
-
-      {/* LED + Stage */}
-      <div style={{ textAlign: "center", marginBottom: "1rem" }}>
-        <span style={{ backgroundColor: "gray", padding: "0.25rem 1rem", margin: "0 1rem" }}>
-          LED WALL
-        </span>
-        <span style={{ backgroundColor: "darkgray", padding: "0.25rem 1rem", margin: "0 1rem" }}>
+    <div style={{ textAlign: "center", padding: "2rem" }}>
+      <h2>🎟 Seat Picker Preview</h2>
+      <svg width="500" height="300">
+        <rect x="0" y="0" width="500" height="30" fill="gray" />
+        <text x="220" y="20" fill="white">
           STAGE
-        </span>
-        <span style={{ backgroundColor: "gray", padding: "0.25rem 1rem", margin: "0 1rem" }}>
-          LED WALL
-        </span>
-      </div>
+        </text>
 
-      {/* VIP Unified */}
-      <div style={{ marginBottom: "2rem" }}>{renderVIPUnified()}</div>
+        {/* VIP Section */}
+        <circle
+          cx="100"
+          cy="60"
+          r="12"
+          fill={getColor("101-A1")}
+          onClick={() => handleSeatClick("101-A1")}
+        />
+        <circle
+          cx="140"
+          cy="60"
+          r="12"
+          fill={getColor("101-A2")}
+          onClick={() => handleSeatClick("101-A2")}
+        />
+        <circle
+          cx="180"
+          cy="60"
+          r="12"
+          fill={getColor("102-B5")}
+          onClick={() => handleSeatClick("102-B5")}
+        />
 
-      {/* GA Sections */}
-      <div
-        style={{
-          display: "flex",
-          justifyContent: "space-between",
-          gap: "2rem",
-          flexWrap: "wrap",
-        }}
-      >
-        {["201", "202", "203", "204"].map(renderGASection)}
-      </div>
-
-      {selectedSeats.length > 0 && (
-        <div style={{ textAlign: "center", marginTop: "1.5rem" }}>
-          <p>Selected: {selectedSeats.join(", ")}</p>
-          <button
-            onClick={() => onContinue(selectedSeats)}
-            style={{
-              padding: "0.5rem 1.5rem",
-              backgroundColor: "#2563eb",
-              color: "white",
-              border: "none",
-              borderRadius: 4,
-              marginTop: 8,
-              cursor: "pointer",
-            }}
-          >
-            Continue
-          </button>
-        </div>
-      )}
+        {/* General Admission Section */}
+        <circle
+          cx="100"
+          cy="120"
+          r="12"
+          fill={getColor("203-C15")}
+          onClick={() => handleSeatClick("203-C15")}
+        />
+        <circle
+          cx="140"
+          cy="120"
+          r="12"
+          fill={getColor("203-C16")}
+          onClick={() => handleSeatClick("203-C16")}
+        />
+        <circle
+          cx="180"
+          cy="120"
+          r="12"
+          fill={getColor("202-D7")}
+          onClick={() => handleSeatClick("202-D7")}
+        />
+      </svg>
     </div>
   );
 }
