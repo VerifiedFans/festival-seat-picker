@@ -123,6 +123,29 @@ export default function ContactForm({ selectedSeats, onConfirm }) {
     }
   };
 
+  // ✅ Add missing styles
+  const inputStyle = {
+    width: "100%",
+    marginBottom: 12,
+    padding: 10,
+    fontSize: "1rem",
+  };
+
+  const textareaStyle = {
+    ...inputStyle,
+    height: 80,
+  };
+
+  const buttonStyle = {
+    padding: "0.5rem 1.5rem",
+    backgroundColor: "#2563eb",
+    color: "white",
+    border: "none",
+    borderRadius: 4,
+    width: "100%",
+    fontSize: "1rem",
+  };
+
   return (
     <form onSubmit={handleSubmit} style={{ maxWidth: 500, margin: "0 auto" }}>
       <h2 style={{ textAlign: "center", marginBottom: "1rem" }}>Your Info</h2>
@@ -160,55 +183,6 @@ export default function ContactForm({ selectedSeats, onConfirm }) {
         required
         style={textareaStyle}
       />
-
-      {gaSeats.length > 0 && (
-        <div style={{ marginBottom: "1rem" }}>
-          <h3>🎟️ General Admission Days</h3>
-          {warning && <p style={{ color: "red" }}>{warning}</p>}
-          <label>
-            <input
-              type="checkbox"
-              value="Thursday"
-              onChange={handleDayChange}
-              checked={selectedDays.includes("Thursday")}
-              disabled={allDays}
-            />
-            Thursday ($35 per seat)
-          </label>
-          <br />
-          <label>
-            <input
-              type="checkbox"
-              value="Friday"
-              onChange={handleDayChange}
-              checked={selectedDays.includes("Friday")}
-              disabled={allDays}
-            />
-            Friday ($35 per seat)
-          </label>
-          <br />
-          <label>
-            <input
-              type="checkbox"
-              value="Saturday"
-              onChange={handleDayChange}
-              checked={selectedDays.includes("Saturday")}
-              disabled={allDays}
-            />
-            Saturday ($35 per seat)
-          </label>
-          <br />
-          <label>
-            <input
-              type="checkbox"
-              value="all"
-              onChange={handleDayChange}
-              checked={allDays}
-            />
-            3-Night General Admission Special ($100 per seat)
-          </label>
-        </div>
-      )}
 
       <div style={{ marginBottom: "1rem", fontSize: "1.2rem" }}>
         <strong>VIP Seats: {vipSeats.length} | Total: </strong> ${totalVipPrice}
