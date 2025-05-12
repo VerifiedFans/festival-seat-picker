@@ -8,7 +8,7 @@ export default function SeatPicker({ onSeatSelect }) {
     const seatArray = [];
     rows.forEach((row, rowIndex) => {
       for (let i = 0; i < seatsPerRow[rowIndex]; i++) {
-        const xPosition = offsetX + (curve ? Math.sin(rowIndex * 0.1) * 10 : 20) * i;
+        const xPosition = offsetX + (curve ? Math.sin(rowIndex * 0.2) * 20 : 20) * i;
         const yPosition = offsetY + 20 * rowIndex;
         seatArray.push({
           id: `${section}-${row}${i + 1}`,
@@ -31,7 +31,7 @@ export default function SeatPicker({ onSeatSelect }) {
     ...generateSeats("104", "ABCDEFGHIJKLM".split(""), [3, 5, 7, 9, 11, 13, 15, 17, 17, 15, 13, 11, 9], 800, 50, true),
   ];
 
-  // 🎟️ **GA Sections**
+  // 🎟️ **GA Sections (Straight Rows)**
   const gaSeats = [];
   const gaRows = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("").concat(["AA", "BB", "CC", "DD", "EE", "FF"]);
   gaRows.forEach((row, index) => {
@@ -49,6 +49,7 @@ export default function SeatPicker({ onSeatSelect }) {
 
   const allSeats = [...vipSeats, ...gaSeats];
 
+  // 🎯 **Handle Click Logic**
   const handleSeatClick = (seatId) => {
     console.log("🪑 Clicked seat:", seatId);
 
@@ -74,11 +75,20 @@ export default function SeatPicker({ onSeatSelect }) {
   return (
     <div style={{ textAlign: "center", padding: "2rem" }}>
       <h2>🎟 Seat Picker Preview</h2>
-      <svg width="1200" height="1000">
+      <svg width="1200" height="1200">
+        {/* 🎭 **Stage** */}
         <rect x="100" y="0" width="1000" height="30" fill="gray" />
         <text x="550" y="20" fill="white">
           STAGE
         </text>
+
+        {/* 🎯 **Section Labels** */}
+        <text x="150" y="45" fill="green">VIP 101</text>
+        <text x="400" y="45" fill="green">VIP 102</text>
+        <text x="700" y="45" fill="green">VIP 103</text>
+        <text x="950" y="45" fill="green">VIP 104</text>
+
+        <text x="400" y="390" fill="blue">General Admission</text>
 
         {/* 🟢 **Render All Seats** */}
         {allSeats.map((seat) => (
