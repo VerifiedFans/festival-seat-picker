@@ -16,8 +16,18 @@ export default function ContactForm({ selectedSeats, onConfirm }) {
   const [allDays, setAllDays] = useState(false);
   const [warning, setWarning] = useState("");
 
-  // ✅ Separate VIP and GA seats every time `selectedSeats` changes
+  // ✅ Properly initialize seat selection
   useEffect(() => {
+    // If no seats are selected, clear previous data
+    if (!selectedSeats || selectedSeats.length === 0) {
+      setVipSeats([]);
+      setGaSeats([]);
+      setTotalVipPrice(0);
+      setTotalGaPrice(0);
+      return;
+    }
+
+    // Separate VIP and GA seats every time `selectedSeats` changes
     const vip = selectedSeats.filter(
       (seat) =>
         seat.includes("101") ||
@@ -37,9 +47,13 @@ export default function ContactForm({ selectedSeats, onConfirm }) {
     setVipSeats(vip);
     setGaSeats(ga);
 
-    // ✅ Calculate Prices
+    // Calculate Prices
     setTotalVipPrice(vip.length * 130); // $130 per VIP seat
     setTotalGaPrice(0); // Start with $0 for GA
+
+    console.log("VIP Seats: ", vip);
+    console.log("GA Seats: ", ga);
+    console.log("Total VIP Price: ", vip.length * 130);
   }, [selectedSeats]);
 
   // ✅ Handle form input changes
