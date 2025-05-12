@@ -54,8 +54,8 @@ export default function SeatPicker({ onSeatSelect }) {
   const gaSeats = [
     ...generateGASection("201", "A", 26, 24, 100, 400),
     ...generateGASection("202", "A", 26, 24, 500, 400),
-    ...generateGASection("203", "A", 26, 24, 900, 400),
-    ...generateGASection("204", "A", 26, 24, 1300, 400),
+    ...generateGASection("203", "A", 26, 24, 500, 800),
+    ...generateGASection("204", "A", 26, 24, 900, 800),
   ];
 
   const allSeats = [...vipSeats, ...gaSeats];
@@ -84,24 +84,11 @@ export default function SeatPicker({ onSeatSelect }) {
     <div style={{ textAlign: "center", padding: "2rem" }}>
       <h2>🎟 Seat Picker Preview</h2>
       <svg width="1500" height="1000">
-        {/* 🎭 **Stage** */}
         <rect x="100" y="0" width="1200" height="30" fill="gray" />
         <text x="600" y="20" fill="white">
           STAGE
         </text>
 
-        {/* 🏷️ **Section Labels** */}
-        <text x="150" y="45" fill="green">Section 101</text>
-        <text x="500" y="45" fill="green">Section 102</text>
-        <text x="900" y="45" fill="green">Section 103</text>
-        <text x="1250" y="45" fill="green">Section 104</text>
-
-        <text x="200" y="390" fill="blue">Section 201</text>
-        <text x="600" y="390" fill="blue">Section 202</text>
-        <text x="1000" y="390" fill="blue">Section 203</text>
-        <text x="1400" y="390" fill="blue">Section 204</text>
-
-        {/* 🟢 **Render All Seats** */}
         {allSeats.map((seat) => (
           <circle
             key={seat.id}
