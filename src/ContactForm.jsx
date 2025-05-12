@@ -8,28 +8,36 @@ export default function ContactForm({ selectedSeats, onConfirm }) {
     address: "",
   });
 
-  const [ticketType, setTicketType] = useState("");
+  const [vipSeats, setVipSeats] = useState([]);
+  const [gaSeats, setGaSeats] = useState([]);
   const [selectedDays, setSelectedDays] = useState([]);
-  const [totalPrice, setTotalPrice] = useState(0);
+  const [totalVipPrice, setTotalVipPrice] = useState(0);
+  const [totalGaPrice, setTotalGaPrice] = useState(0);
   const [allDays, setAllDays] = useState(false);
 
-  // ✅ Detect if seats are VIP or GA
+  // ✅ Detect if seats are VIP or GA and separate them
   useEffect(() => {
-    if (
-      selectedSeats.some(
-        (seat) =>
-          seat.includes("101") ||
-          seat.includes("102") ||
-          seat.includes("103") ||
-          seat.includes("104")
-      )
-    ) {
-      setTicketType("VIP");
-      setTotalPrice(130 * selectedSeats.length);
-    } else {
-      setTicketType("GA");
-      setTotalPrice(0); // Reset for GA
-    }
+    const vip = selectedSeats.filter(
+      (seat) =>
+        seat.includes("101") ||
+        seat.includes("102") ||
+        seat.includes("103") ||
+        seat.includes("104")
+    );
+    const ga = selectedSeats.filter(
+      (seat) =>
+        !seat.includes("101") &&
+        !seat.includes("102") &&
+        !seat.includes("103") &&
+        !seat.includes("104")
+    );
+
+    setVipSeats(vip);
+    setGaSeats(ga);
+
+    // ✅ Calculate Prices
+    setTotalVipPrice(vip.length * 130); // $130 per VIP seat
+    setTotalGaPrice(0); // Start with $0 for GA
   }, [selectedSeats]);
 
   // ✅ Handle form input changes
@@ -45,30 +53,27 @@ export default function ContactForm({ selectedSeats, onConfirm }) {
       if (checked) {
         setAllDays(true);
         setSelectedDays(["Thursday", "Friday", "Saturday"]);
-        setTotalPrice(100 * selectedSeats.length); // $100 per seat for all 3 days
+        setTotalGaPrice(100 * gaSeats.length); // $100 per seat for all 3 days
       } else {
         setAllDays(false);
         setSelectedDays([]);
-        setTotalPrice(0);
+        setTotalGaPrice(0);
       }
     } else {
       const updatedDays = checked
         ? [...selectedDays, value]
         : selectedDays.filter((day) => day !== value);
 
-      // 🔄 If all three days are selected, switch to 3-Day Special
       if (updatedDays.length === 3) {
         setAllDays(true);
         setSelectedDays(["Thursday", "Friday", "Saturday"]);
-        setTotalPrice(100 * selectedSeats.length);
+        setTotalGaPrice(100 * gaSeats.length);
       } else {
         setAllDays(false);
         setSelectedDays(updatedDays);
-        setTotalPrice(35 * updatedDays.length * selectedSeats.length);
+        setTotalGaPrice(35 * updatedDays.length * gaSeats.length);
       }
     }
-    console.log("Days Selected:", selectedDays);
-    console.log("Total Price:", totalPrice);
   };
 
   // ✅ Handle form submission
@@ -78,8 +83,8 @@ export default function ContactForm({ selectedSeats, onConfirm }) {
       ...formData,
       seats: selectedSeats.join(", "),
       days: selectedDays.join(", "),
-      total_price: totalPrice,
-      ticket_type: ticketType,
+      total_vip_price: totalVipPrice,
+      total_ga_price: totalGaPrice,
     };
 
     try {
@@ -141,7 +146,7 @@ export default function ContactForm({ selectedSeats, onConfirm }) {
         style={textareaStyle}
       />
 
-      {ticketType === "GA" && (
+      {gaSeats.length > 0 && (
         <div style={{ marginBottom: "1rem" }}>
           <h3>🎟️ General Admission Days</h3>
           <label>
@@ -190,7 +195,9 @@ export default function ContactForm({ selectedSeats, onConfirm }) {
       )}
 
       <div style={{ marginBottom: "1rem", fontSize: "1.2rem" }}>
-        <strong>Total Price:</strong> ${totalPrice}
+        <strong>VIP Total Price:</strong> ${totalVipPrice}
+        <br />
+        <strong>GA Total Price:</strong> ${totalGaPrice}
       </div>
 
       <button type="submit" style={buttonStyle}>
