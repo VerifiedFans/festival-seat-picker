@@ -3,14 +3,45 @@ import React, { useState, useEffect } from "react";
 export default function SeatPicker({ onSeatSelect }) {
   const [selectedSeats, setSelectedSeats] = useState([]);
 
-  const seats = {
-    "101-A1": { section: "VIP", available: true },
-    "101-A2": { section: "VIP", available: true },
-    "102-B5": { section: "VIP", available: true },
-    "203-C15": { section: "GA", available: true },
-    "203-C16": { section: "GA", available: true },
-    "202-D7": { section: "GA", available: true },
+  // 🎟️ **Generating Seats:**
+  const generateSeats = (section, rows, seatsPerRow, curved = false) => {
+    const seatArray = [];
+    rows.forEach((row, rowIndex) => {
+      for (let i = 1; i <= seatsPerRow[rowIndex]; i++) {
+        seatArray.push({
+          id: `${section}-${row}${i}`,
+          section,
+          row,
+          available: true,
+        });
+      }
+    });
+    return seatArray;
   };
+
+  // 🎟️ **VIP Sections (Curved Layout for 101 & 104)**
+  const vipSeats = [
+    ...generateSeats("101", "ABCDEFGHIJKLM".split(""), [3, 5, 7, 9, 11, 13, 15, 17, 17, 15, 13, 11, 9]),
+    ...generateSeats("102", "ABCDEFGHIJKL".split(""), [8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19]),
+    ...generateSeats("103", "ABCDEFGHIJKL".split(""), [8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19]),
+    ...generateSeats("104", "ABCDEFGHIJKLM".split(""), [3, 5, 7, 9, 11, 13, 15, 17, 17, 15, 13, 11, 9]),
+  ];
+
+  // 🎟️ **GA Sections**
+  const gaSeats = [];
+  const gaRows = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("").concat(["AA", "BB", "CC", "DD", "EE", "FF"]);
+  gaRows.forEach((row) => {
+    for (let i = 1; i <= 48; i++) {
+      gaSeats.push({
+        id: `GA-${row}${i}`,
+        section: "GA",
+        row,
+        available: true,
+      });
+    }
+  });
+
+  const allSeats = [...vipSeats, ...gaSeats];
 
   const handleSeatClick = (seatId) => {
     console.log("🪑 Clicked seat:", seatId);
@@ -31,64 +62,31 @@ export default function SeatPicker({ onSeatSelect }) {
 
   const getColor = (id) => {
     if (selectedSeats.includes(id)) return "orange";
-    if (!seats[id].available) return "gray";
-    return seats[id].section === "VIP" ? "green" : "blue";
+    const seat = allSeats.find((s) => s.id === id);
+    if (!seat?.available) return "gray";
+    return seat.section === "GA" ? "blue" : "green";
   };
 
   return (
     <div style={{ textAlign: "center", padding: "2rem" }}>
       <h2>🎟 Seat Picker Preview</h2>
-      <svg width="500" height="300">
-        <rect x="0" y="0" width="500" height="30" fill="gray" />
-        <text x="220" y="20" fill="white">
+      <svg width="1000" height="1000">
+        <rect x="0" y="0" width="1000" height="30" fill="gray" />
+        <text x="450" y="20" fill="white">
           STAGE
         </text>
 
-        {/* VIP Section */}
-        <circle
-          cx="100"
-          cy="60"
-          r="12"
-          fill={getColor("101-A1")}
-          onClick={() => handleSeatClick("101-A1")}
-        />
-        <circle
-          cx="140"
-          cy="60"
-          r="12"
-          fill={getColor("101-A2")}
-          onClick={() => handleSeatClick("101-A2")}
-        />
-        <circle
-          cx="180"
-          cy="60"
-          r="12"
-          fill={getColor("102-B5")}
-          onClick={() => handleSeatClick("102-B5")}
-        />
-
-        {/* General Admission Section */}
-        <circle
-          cx="100"
-          cy="120"
-          r="12"
-          fill={getColor("203-C15")}
-          onClick={() => handleSeatClick("203-C15")}
-        />
-        <circle
-          cx="140"
-          cy="120"
-          r="12"
-          fill={getColor("203-C16")}
-          onClick={() => handleSeatClick("203-C16")}
-        />
-        <circle
-          cx="180"
-          cy="120"
-          r="12"
-          fill={getColor("202-D7")}
-          onClick={() => handleSeatClick("202-D7")}
-        />
+        {/* 🟢 **Render All Seats** */}
+        {allSeats.map((seat, index) => (
+          <circle
+            key={seat.id}
+            cx={50 + (index % 48) * 20}
+            cy={50 + Math.floor(index / 48) * 20}
+            r="5"
+            fill={getColor(seat.id)}
+            onClick={() => handleSeatClick(seat.id)}
+          />
+        ))}
       </svg>
     </div>
   );
