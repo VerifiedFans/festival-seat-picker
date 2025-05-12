@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from "react";
 
 export default function ContactForm({ selectedSeats, onConfirm }) {
@@ -15,7 +16,7 @@ export default function ContactForm({ selectedSeats, onConfirm }) {
   const [totalGaPrice, setTotalGaPrice] = useState(0);
   const [allDays, setAllDays] = useState(false);
 
-  // ✅ Separate VIP and GA seats
+  // ✅ Separate VIP and GA seats every time `selectedSeats` changes
   useEffect(() => {
     const vip = selectedSeats.filter(
       (seat) =>
@@ -24,6 +25,7 @@ export default function ContactForm({ selectedSeats, onConfirm }) {
         seat.includes("103") ||
         seat.includes("104")
     );
+
     const ga = selectedSeats.filter(
       (seat) =>
         !seat.includes("101") &&
@@ -38,6 +40,10 @@ export default function ContactForm({ selectedSeats, onConfirm }) {
     // ✅ Calculate Prices
     setTotalVipPrice(vip.length * 130); // $130 per VIP seat
     setTotalGaPrice(0); // Start with $0 for GA
+
+    console.log("VIP Seats: ", vip);
+    console.log("GA Seats: ", ga);
+    console.log("Total VIP Price: ", vip.length * 130);
   }, [selectedSeats]);
 
   // ✅ Handle form input changes
