@@ -76,6 +76,9 @@ export default function ContactForm({ selectedSeats, onConfirm }) {
     }
   };
 
+  // ✅ Grand Total Calculation
+  const grandTotal = totalVipPrice + totalGaPrice;
+
   // ✅ Handle form submission
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -85,6 +88,7 @@ export default function ContactForm({ selectedSeats, onConfirm }) {
       days: selectedDays.join(", "),
       total_vip_price: totalVipPrice,
       total_ga_price: totalGaPrice,
+      grand_total: grandTotal,
     };
 
     try {
@@ -195,9 +199,11 @@ export default function ContactForm({ selectedSeats, onConfirm }) {
       )}
 
       <div style={{ marginBottom: "1rem", fontSize: "1.2rem" }}>
-        <strong>VIP Total Price:</strong> ${totalVipPrice}
+        <strong>VIP Seats: {vipSeats.length} | Total: </strong> ${totalVipPrice}
         <br />
-        <strong>GA Total Price:</strong> ${totalGaPrice}
+        <strong>GA Seats: {gaSeats.length} | Total: </strong> ${totalGaPrice}
+        <hr />
+        <strong>Grand Total: </strong> ${grandTotal}
       </div>
 
       <button type="submit" style={buttonStyle}>
@@ -206,25 +212,3 @@ export default function ContactForm({ selectedSeats, onConfirm }) {
     </form>
   );
 }
-
-const inputStyle = {
-  width: "100%",
-  marginBottom: 12,
-  padding: 10,
-  fontSize: "1rem",
-};
-
-const textareaStyle = {
-  ...inputStyle,
-  height: 80,
-};
-
-const buttonStyle = {
-  padding: "0.5rem 1.5rem",
-  backgroundColor: "#2563eb",
-  color: "white",
-  border: "none",
-  borderRadius: 4,
-  width: "100%",
-  fontSize: "1rem",
-};
