@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 
 export default function ContactForm({ selectedSeats, onConfirm }) {
@@ -15,6 +14,7 @@ export default function ContactForm({ selectedSeats, onConfirm }) {
   const [totalVipPrice, setTotalVipPrice] = useState(0);
   const [totalGaPrice, setTotalGaPrice] = useState(0);
   const [allDays, setAllDays] = useState(false);
+  const [warning, setWarning] = useState("");
 
   // ✅ Separate VIP and GA seats every time `selectedSeats` changes
   useEffect(() => {
@@ -40,10 +40,6 @@ export default function ContactForm({ selectedSeats, onConfirm }) {
     // ✅ Calculate Prices
     setTotalVipPrice(vip.length * 130); // $130 per VIP seat
     setTotalGaPrice(0); // Start with $0 for GA
-
-    console.log("VIP Seats: ", vip);
-    console.log("GA Seats: ", ga);
-    console.log("Total VIP Price: ", vip.length * 130);
   }, [selectedSeats]);
 
   // ✅ Handle form input changes
@@ -53,6 +49,14 @@ export default function ContactForm({ selectedSeats, onConfirm }) {
 
   // ✅ Handle Day Selection Logic
   const handleDayChange = (event) => {
+    if (gaSeats.length === 0) {
+      setWarning("You must select GA seats to pick days!");
+      event.target.checked = false;
+      return;
+    } else {
+      setWarning("");
+    }
+
     const { value, checked } = event.target;
 
     if (value === "all") {
@@ -159,6 +163,7 @@ export default function ContactForm({ selectedSeats, onConfirm }) {
       {gaSeats.length > 0 && (
         <div style={{ marginBottom: "1rem" }}>
           <h3>🎟️ General Admission Days</h3>
+          {warning && <p style={{ color: "red" }}>{warning}</p>}
           <label>
             <input
               type="checkbox"
