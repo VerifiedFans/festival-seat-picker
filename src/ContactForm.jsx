@@ -16,11 +16,13 @@ export default function ContactForm({ selectedSeats, onConfirm }) {
   const [allDays, setAllDays] = useState(false);
   const [warning, setWarning] = useState("");
 
-  // ✅ Properly initialize seat selection
+  /**
+   * 🚀 **Debugging Logs:** Added logs to monitor the flow of seat selection and price calculations.
+   */
   useEffect(() => {
-    console.log("Selected Seats:", selectedSeats);
+    console.log("🚀 Selected Seats Received in ContactForm:", selectedSeats);
 
-    // If no seats are selected, clear previous data
+    // ✅ Properly clear if no seats are selected
     if (!selectedSeats || selectedSeats.length === 0) {
       console.log("No seats selected, clearing state.");
       setVipSeats([]);
@@ -30,7 +32,7 @@ export default function ContactForm({ selectedSeats, onConfirm }) {
       return;
     }
 
-    // Separate VIP and GA seats every time `selectedSeats` changes
+    // ✅ Separate VIP and GA seats every time `selectedSeats` changes
     const vip = selectedSeats.filter(
       (seat) =>
         seat.includes("101") ||
@@ -47,56 +49,18 @@ export default function ContactForm({ selectedSeats, onConfirm }) {
         !seat.includes("104")
     );
 
-    console.log("VIP Seats Found:", vip);
-    console.log("GA Seats Found:", ga);
+    console.log("🎯 VIP Seats Found:", vip);
+    console.log("🎯 GA Seats Found:", ga);
 
     setVipSeats(vip);
     setGaSeats(ga);
 
-    // Calculate Prices
+    // ✅ Calculate Prices
     setTotalVipPrice(vip.length * 130); // $130 per VIP seat
     setTotalGaPrice(0); // Start with $0 for GA
 
-    console.log("Total VIP Price:", vip.length * 130);
-    console.log("Total GA Price (initial):", 0);
-  }, [selectedSeats]);
-  useEffect(() => {
-    // If no seats are selected, clear previous data
-    if (!selectedSeats || selectedSeats.length === 0) {
-      setVipSeats([]);
-      setGaSeats([]);
-      setTotalVipPrice(0);
-      setTotalGaPrice(0);
-      return;
-    }
-
-    // Separate VIP and GA seats every time `selectedSeats` changes
-    const vip = selectedSeats.filter(
-      (seat) =>
-        seat.includes("101") ||
-        seat.includes("102") ||
-        seat.includes("103") ||
-        seat.includes("104")
-    );
-
-    const ga = selectedSeats.filter(
-      (seat) =>
-        !seat.includes("101") &&
-        !seat.includes("102") &&
-        !seat.includes("103") &&
-        !seat.includes("104")
-    );
-
-    setVipSeats(vip);
-    setGaSeats(ga);
-
-    // Calculate Prices
-    setTotalVipPrice(vip.length * 130); // $130 per VIP seat
-    setTotalGaPrice(0); // Start with $0 for GA
-
-    console.log("VIP Seats: ", vip);
-    console.log("GA Seats: ", ga);
-    console.log("Total VIP Price: ", vip.length * 130);
+    console.log("✅ Total VIP Price:", vip.length * 130);
+    console.log("✅ Total GA Price (initial):", 0);
   }, [selectedSeats]);
 
   // ✅ Handle form input changes
@@ -142,6 +106,8 @@ export default function ContactForm({ selectedSeats, onConfirm }) {
         setTotalGaPrice(35 * gaSeats.length * updatedDays.length);
       }
     }
+    console.log("✅ Updated Days:", selectedDays);
+    console.log("✅ Updated GA Price:", totalGaPrice);
   };
 
   // ✅ Grand Total Calculation
