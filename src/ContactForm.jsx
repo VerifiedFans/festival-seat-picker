@@ -81,7 +81,8 @@ export default function ContactForm({ selectedSeats, onConfirm }) {
       } else {
         setAllDays(false);
         setSelectedDays(updatedDays);
-        setTotalGaPrice(35 * updatedDays.length * gaSeats.length);
+        // ✅ Corrected price calculation
+        setTotalGaPrice(35 * gaSeats.length * updatedDays.length);
       }
     }
   };
