@@ -4,14 +4,18 @@ export default function SeatPicker({ onSeatSelect }) {
   const [selectedSeats, setSelectedSeats] = useState([]);
 
   // 🎟️ **Generating Seats:**
-  const generateSeats = (section, rows, seatsPerRow, curved = false) => {
+  const generateSeats = (section, rows, seatsPerRow, offsetX = 0, offsetY = 0, curve = false) => {
     const seatArray = [];
     rows.forEach((row, rowIndex) => {
-      for (let i = 1; i <= seatsPerRow[rowIndex]; i++) {
+      for (let i = 0; i < seatsPerRow[rowIndex]; i++) {
+        const xPosition = offsetX + (curve ? Math.sin(rowIndex * 0.1) * 10 : 20) * i;
+        const yPosition = offsetY + 20 * rowIndex;
         seatArray.push({
-          id: `${section}-${row}${i}`,
+          id: `${section}-${row}${i + 1}`,
           section,
           row,
+          x: xPosition,
+          y: yPosition,
           available: true,
         });
       }
@@ -21,21 +25,23 @@ export default function SeatPicker({ onSeatSelect }) {
 
   // 🎟️ **VIP Sections (Curved Layout for 101 & 104)**
   const vipSeats = [
-    ...generateSeats("101", "ABCDEFGHIJKLM".split(""), [3, 5, 7, 9, 11, 13, 15, 17, 17, 15, 13, 11, 9]),
-    ...generateSeats("102", "ABCDEFGHIJKL".split(""), [8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19]),
-    ...generateSeats("103", "ABCDEFGHIJKL".split(""), [8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19]),
-    ...generateSeats("104", "ABCDEFGHIJKLM".split(""), [3, 5, 7, 9, 11, 13, 15, 17, 17, 15, 13, 11, 9]),
+    ...generateSeats("101", "ABCDEFGHIJKLM".split(""), [3, 5, 7, 9, 11, 13, 15, 17, 17, 15, 13, 11, 9], 100, 50, true),
+    ...generateSeats("102", "ABCDEFGHIJKL".split(""), [8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19], 300, 50),
+    ...generateSeats("103", "ABCDEFGHIJKL".split(""), [8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19], 600, 50),
+    ...generateSeats("104", "ABCDEFGHIJKLM".split(""), [3, 5, 7, 9, 11, 13, 15, 17, 17, 15, 13, 11, 9], 800, 50, true),
   ];
 
   // 🎟️ **GA Sections**
   const gaSeats = [];
   const gaRows = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("").concat(["AA", "BB", "CC", "DD", "EE", "FF"]);
-  gaRows.forEach((row) => {
+  gaRows.forEach((row, index) => {
     for (let i = 1; i <= 48; i++) {
       gaSeats.push({
         id: `GA-${row}${i}`,
         section: "GA",
         row,
+        x: 50 + (i - 1) * 15,
+        y: 400 + index * 15,
         available: true,
       });
     }
@@ -47,10 +53,8 @@ export default function SeatPicker({ onSeatSelect }) {
     console.log("🪑 Clicked seat:", seatId);
 
     if (selectedSeats.includes(seatId)) {
-      // If the seat is already selected, remove it
       setSelectedSeats(selectedSeats.filter((id) => id !== seatId));
     } else {
-      // If the seat is not selected, add it
       setSelectedSeats([...selectedSeats, seatId]);
     }
   };
@@ -70,18 +74,18 @@ export default function SeatPicker({ onSeatSelect }) {
   return (
     <div style={{ textAlign: "center", padding: "2rem" }}>
       <h2>🎟 Seat Picker Preview</h2>
-      <svg width="1000" height="1000">
-        <rect x="0" y="0" width="1000" height="30" fill="gray" />
-        <text x="450" y="20" fill="white">
+      <svg width="1200" height="1000">
+        <rect x="100" y="0" width="1000" height="30" fill="gray" />
+        <text x="550" y="20" fill="white">
           STAGE
         </text>
 
         {/* 🟢 **Render All Seats** */}
-        {allSeats.map((seat, index) => (
+        {allSeats.map((seat) => (
           <circle
             key={seat.id}
-            cx={50 + (index % 48) * 20}
-            cy={50 + Math.floor(index / 48) * 20}
+            cx={seat.x}
+            cy={seat.y}
             r="5"
             fill={getColor(seat.id)}
             onClick={() => handleSeatClick(seat.id)}
