@@ -15,7 +15,7 @@ export default function ContactForm({ selectedSeats, onConfirm }) {
   const [totalGaPrice, setTotalGaPrice] = useState(0);
   const [allDays, setAllDays] = useState(false);
 
-  // ✅ Detect if seats are VIP or GA and separate them
+  // ✅ Separate VIP and GA seats
   useEffect(() => {
     const vip = selectedSeats.filter(
       (seat) =>
