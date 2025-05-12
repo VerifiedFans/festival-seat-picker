@@ -14,15 +14,8 @@ export default function ContactForm({ selectedSeats, onConfirm }) {
   const [totalVipPrice, setTotalVipPrice] = useState(0);
   const [totalGaPrice, setTotalGaPrice] = useState(0);
   const [allDays, setAllDays] = useState(false);
-  const [warning, setWarning] = useState("");
 
-  /**
-   * 🚀 **Debugging Logs:** Added logs to monitor the flow of seat selection and price calculations.
-   */
   useEffect(() => {
-    console.log("🚀 Selected Seats Received in ContactForm:", selectedSeats);
-
-    // ✅ Properly clear if no seats are selected
     if (!selectedSeats || selectedSeats.length === 0) {
       console.log("No seats selected, clearing state.");
       setVipSeats([]);
@@ -32,88 +25,43 @@ export default function ContactForm({ selectedSeats, onConfirm }) {
       return;
     }
 
-    // ✅ Separate VIP and GA seats every time `selectedSeats` changes
-    const vip = selectedSeats.filter(
-      (seat) =>
-        seat.includes("101") ||
-        seat.includes("102") ||
-        seat.includes("103") ||
-        seat.includes("104")
+    const vip = selectedSeats.filter((seat) =>
+      ["101", "102", "103", "104"].some((sec) => seat.includes(sec))
     );
-
     const ga = selectedSeats.filter(
-      (seat) =>
-        !seat.includes("101") &&
-        !seat.includes("102") &&
-        !seat.includes("103") &&
-        !seat.includes("104")
+      (seat) => !["101", "102", "103", "104"].some((sec) => seat.includes(sec))
     );
-
-    console.log("🎯 VIP Seats Found:", vip);
-    console.log("🎯 GA Seats Found:", ga);
 
     setVipSeats(vip);
     setGaSeats(ga);
-
-    // ✅ Calculate Prices
-    setTotalVipPrice(vip.length * 130); // $130 per VIP seat
-    setTotalGaPrice(0); // Start with $0 for GA
-
-    console.log("✅ Total VIP Price:", vip.length * 130);
-    console.log("✅ Total GA Price (initial):", 0);
+    setTotalVipPrice(vip.length * 130);
+    setTotalGaPrice(0);
   }, [selectedSeats]);
 
-  // ✅ Handle form input changes
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  // ✅ Handle Day Selection Logic
   const handleDayChange = (event) => {
-    if (gaSeats.length === 0) {
-      setWarning("You must select GA seats to pick days!");
-      event.target.checked = false;
-      return;
-    } else {
-      setWarning("");
-    }
-
     const { value, checked } = event.target;
 
     if (value === "all") {
-      if (checked) {
-        setAllDays(true);
-        setSelectedDays(["Thursday", "Friday", "Saturday"]);
-        setTotalGaPrice(100 * gaSeats.length); // $100 per seat for all 3 days
-      } else {
-        setAllDays(false);
-        setSelectedDays([]);
-        setTotalGaPrice(0);
-      }
+      setAllDays(checked);
+      setSelectedDays(checked ? ["Thursday", "Friday", "Saturday"] : []);
+      setTotalGaPrice(checked ? 100 * gaSeats.length : 0);
     } else {
       const updatedDays = checked
         ? [...selectedDays, value]
         : selectedDays.filter((day) => day !== value);
 
-      if (updatedDays.length === 3) {
-        setAllDays(true);
-        setSelectedDays(["Thursday", "Friday", "Saturday"]);
-        setTotalGaPrice(100 * gaSeats.length);
-      } else {
-        setAllDays(false);
-        setSelectedDays(updatedDays);
-        // ✅ Corrected price calculation
-        setTotalGaPrice(35 * gaSeats.length * updatedDays.length);
-      }
+      setAllDays(updatedDays.length === 3);
+      setSelectedDays(updatedDays);
+      setTotalGaPrice(35 * gaSeats.length * updatedDays.length);
     }
-    console.log("✅ Updated Days:", selectedDays);
-    console.log("✅ Updated GA Price:", totalGaPrice);
   };
 
-  // ✅ Grand Total Calculation
   const grandTotal = totalVipPrice + totalGaPrice;
 
-  // ✅ Handle form submission
   const handleSubmit = async (e) => {
     e.preventDefault();
     const payload = {
@@ -125,61 +73,22 @@ export default function ContactForm({ selectedSeats, onConfirm }) {
       grand_total: grandTotal,
     };
 
-    try {
-      const response = await fetch("https://formspree.io/f/mkgrbrrb", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(payload),
-      });
-
-      if (response.ok) {
-        alert("Form submitted successfully!");
-        onConfirm();
-      } else {
-        alert("There was an error. Please try again.");
-      }
-    } catch (error) {
-      console.error("Form submit error:", error);
-      alert("Failed to submit. Please try again.");
-    }
-  };
-
-  // ✅ Add missing styles
-  const inputStyle = {
-    width: "100%",
-    marginBottom: 12,
-    padding: 10,
-    fontSize: "1rem",
-  };
-
-  const textareaStyle = {
-    ...inputStyle,
-    height: 80,
-  };
-
-  const buttonStyle = {
-    padding: "0.5rem 1.5rem",
-    backgroundColor: "#2563eb",
-    color: "white",
-    border: "none",
-    borderRadius: 4,
-    width: "100%",
-    fontSize: "1rem",
+    await fetch("https://formspree.io/f/mkgrbrrb", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(payload),
+    });
   };
 
   return (
-    <form onSubmit={handleSubmit} style={{ maxWidth: 500, margin: "0 auto" }}>
-      <h2 style={{ textAlign: "center", marginBottom: "1rem" }}>Your Info</h2>
-
+    <form onSubmit={handleSubmit}>
       <input
         name="name"
         placeholder="Full Name"
         value={formData.name}
         onChange={handleChange}
-        required
-        style={inputStyle}
       />
       <input
         name="email"
@@ -187,37 +96,29 @@ export default function ContactForm({ selectedSeats, onConfirm }) {
         placeholder="Email"
         value={formData.email}
         onChange={handleChange}
-        required
-        style={inputStyle}
       />
       <input
         name="phone"
         placeholder="Phone Number"
         value={formData.phone}
         onChange={handleChange}
-        required
-        style={inputStyle}
       />
       <textarea
         name="address"
         placeholder="Full Address"
         value={formData.address}
         onChange={handleChange}
-        required
-        style={textareaStyle}
       />
 
-      <div style={{ marginBottom: "1rem", fontSize: "1.2rem" }}>
+      <div>
         <strong>VIP Seats: {vipSeats.length} | Total: </strong> ${totalVipPrice}
         <br />
         <strong>GA Seats: {gaSeats.length} | Total: </strong> ${totalGaPrice}
-        <hr />
+        <br />
         <strong>Grand Total: </strong> ${grandTotal}
       </div>
 
-      <button type="submit" style={buttonStyle}>
-        Submit
-      </button>
+      <button type="submit">Submit</button>
     </form>
   );
 }
