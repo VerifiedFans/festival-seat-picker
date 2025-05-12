@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from "react";
-console.log("Selected Seats:", selectedSeats);
-console.log("Number of Seats:", selectedSeats.length);
+
 export default function ContactForm({ selectedSeats, onConfirm }) {
   const [formData, setFormData] = useState({
     name: "",
@@ -30,8 +29,6 @@ export default function ContactForm({ selectedSeats, onConfirm }) {
     } else {
       setTicketType("GA");
       setTotalPrice(0); // Reset for GA
-      console.log("Updated Days:", updatedDays); // Should be 1 item if 1 day is selected
-console.log("Total Price Calculation:", 35 * updatedDays.length * selectedSeats.length);
     }
   }, [selectedSeats]);
 
@@ -59,21 +56,19 @@ console.log("Total Price Calculation:", 35 * updatedDays.length * selectedSeats.
         ? [...selectedDays, value]
         : selectedDays.filter((day) => day !== value);
 
-      setSelectedDays(updatedDays);
-
-      // 🔄 If all three days are selected, automatically switch to 3-Day Special
-      if (
-        updatedDays.includes("Thursday") &&
-        updatedDays.includes("Friday") &&
-        updatedDays.includes("Saturday")
-      ) {
+      // 🔄 If all three days are selected, switch to 3-Day Special
+      if (updatedDays.length === 3) {
         setAllDays(true);
+        setSelectedDays(["Thursday", "Friday", "Saturday"]);
         setTotalPrice(100 * selectedSeats.length);
       } else {
         setAllDays(false);
+        setSelectedDays(updatedDays);
         setTotalPrice(35 * updatedDays.length * selectedSeats.length);
       }
     }
+    console.log("Days Selected:", selectedDays);
+    console.log("Total Price:", totalPrice);
   };
 
   // ✅ Handle form submission
