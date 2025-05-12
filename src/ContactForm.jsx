@@ -1,124 +1,31 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
+import SeatPicker from "./SeatPicker";
 
-export default function ContactForm({ selectedSeats, onConfirm }) {
-  const [formData, setFormData] = useState({
-    name: "",
-    email: "",
-    phone: "",
-    address: "",
-  });
-
+export default function ContactForm() {
+  const [selectedSeats, setSelectedSeats] = useState([]);
   const [vipSeats, setVipSeats] = useState([]);
   const [gaSeats, setGaSeats] = useState([]);
-  const [selectedDays, setSelectedDays] = useState([]);
-  const [totalVipPrice, setTotalVipPrice] = useState(0);
-  const [totalGaPrice, setTotalGaPrice] = useState(0);
-  const [allDays, setAllDays] = useState(false);
+  const [vipPrice, setVipPrice] = useState(0);
+  const [gaPrice, setGaPrice] = useState(0);
+  const [grandTotal, setGrandTotal] = useState(0);
 
-  useEffect(() => {
-    if (!selectedSeats || selectedSeats.length === 0) {
-      console.log("No seats selected, clearing state.");
-      setVipSeats([]);
-      setGaSeats([]);
-      setTotalVipPrice(0);
-      setTotalGaPrice(0);
-      return;
-    }
-
-    const vip = selectedSeats.filter((seat) =>
-      ["101", "102", "103", "104"].some((sec) => seat.includes(sec))
-    );
-    const ga = selectedSeats.filter(
-      (seat) => !["101", "102", "103", "104"].some((sec) => seat.includes(sec))
-    );
-
+  const handleSeatSelect = (seats) => {
+    setSelectedSeats(seats);
+    const vip = seats.filter((s) => s.startsWith("10"));
+    const ga = seats.filter((s) => s.startsWith("20"));
     setVipSeats(vip);
     setGaSeats(ga);
-    setTotalVipPrice(vip.length * 130);
-    setTotalGaPrice(0);
-  }, [selectedSeats]);
-
-  const handleChange = (e) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
-  };
-
-  const handleDayChange = (event) => {
-    const { value, checked } = event.target;
-
-    if (value === "all") {
-      setAllDays(checked);
-      setSelectedDays(checked ? ["Thursday", "Friday", "Saturday"] : []);
-      setTotalGaPrice(checked ? 100 * gaSeats.length : 0);
-    } else {
-      const updatedDays = checked
-        ? [...selectedDays, value]
-        : selectedDays.filter((day) => day !== value);
-
-      setAllDays(updatedDays.length === 3);
-      setSelectedDays(updatedDays);
-      setTotalGaPrice(35 * gaSeats.length * updatedDays.length);
-    }
-  };
-
-  const grandTotal = totalVipPrice + totalGaPrice;
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    const payload = {
-      ...formData,
-      seats: selectedSeats.join(", "),
-      days: selectedDays.join(", "),
-      total_vip_price: totalVipPrice,
-      total_ga_price: totalGaPrice,
-      grand_total: grandTotal,
-    };
-
-    await fetch("https://formspree.io/f/mkgrbrrb", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(payload),
-    });
+    setVipPrice(vip.length * 130);
+    setGaPrice(ga.length * 35); // Default to 1-day GA
+    setGrandTotal(vip.length * 130 + ga.length * 35);
   };
 
   return (
-    <form onSubmit={handleSubmit}>
-      <input
-        name="name"
-        placeholder="Full Name"
-        value={formData.name}
-        onChange={handleChange}
-      />
-      <input
-        name="email"
-        type="email"
-        placeholder="Email"
-        value={formData.email}
-        onChange={handleChange}
-      />
-      <input
-        name="phone"
-        placeholder="Phone Number"
-        value={formData.phone}
-        onChange={handleChange}
-      />
-      <textarea
-        name="address"
-        placeholder="Full Address"
-        value={formData.address}
-        onChange={handleChange}
-      />
-
-      <div>
-        <strong>VIP Seats: {vipSeats.length} | Total: </strong> ${totalVipPrice}
-        <br />
-        <strong>GA Seats: {gaSeats.length} | Total: </strong> ${totalGaPrice}
-        <br />
-        <strong>Grand Total: </strong> ${grandTotal}
-      </div>
-
-      <button type="submit">Submit</button>
-    </form>
+    <div>
+      <SeatPicker onSeatSelect={handleSeatSelect} />
+      <h3>VIP Seats: {vipSeats.length} | Total: ${vipPrice}</h3>
+      <h3>GA Seats: {gaSeats.length} | Total: ${gaPrice}</h3>
+      <h3>Grand Total: ${grandTotal}</h3>
+    </div>
   );
 }
