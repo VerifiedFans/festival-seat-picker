@@ -1,108 +1,97 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 
-export default function SeatPicker({ onSeatSelect }) {
+const sections = {
+  VIP: {
+    101: { rows: ["A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L"], seats: [3, 5, 7, 9, 11, 13, 15, 17, 17, 15, 13, 11] },
+    102: { rows: ["A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L"], seats: [8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19] },
+    103: { rows: ["A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L"], seats: [8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19] },
+    104: { rows: ["A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L"], seats: [3, 5, 7, 9, 11, 13, 15, 17, 17, 15, 13, 11] },
+  },
+  GA: {
+    201: { rows: [..."ABCDEFGHIJKLMNOPQRSTUVWXYZ", ...["AA", "BB", "CC", "DD", "EE", "FF"]], seats: 12 },
+    202: { rows: [..."ABCDEFGHIJKLMNOPQRSTUVWXYZ", ...["AA", "BB", "CC", "DD", "EE", "FF"]], seats: 12 },
+    203: { rows: [..."ABCDEFGHIJKLMNOPQRSTUVWXYZ", ...["AA", "BB", "CC", "DD", "EE", "FF"]], seats: 12 },
+    204: { rows: [..."ABCDEFGHIJKLMNOPQRSTUVWXYZ", ...["AA", "BB", "CC", "DD", "EE", "FF"]], seats: 12 },
+  },
+};
+
+export default function SeatPicker({ onSelect }) {
   const [selectedSeats, setSelectedSeats] = useState([]);
 
-  // 🎟️ **Generate VIP Sections**
-  const generateSeats = (section, rows, seatsPerRow, offsetX, offsetY, curve = false) => {
-    const seatArray = [];
-    rows.forEach((row, rowIndex) => {
-      for (let i = 0; i < seatsPerRow[rowIndex]; i++) {
-        const angleOffset = curve ? Math.sin(rowIndex * 0.15) * 15 : 0;
-        const xPosition = offsetX + (20 + angleOffset) * i;
-        const yPosition = offsetY + 20 * rowIndex;
-        seatArray.push({
-          id: `${section}-${row}${i + 1}`,
-          section,
-          row,
-          x: xPosition,
-          y: yPosition,
-          available: true,
-        });
-      }
+  const toggleSeat = (seat) => {
+    setSelectedSeats((prev) =>
+      prev.includes(seat) ? prev.filter((s) => s !== seat) : [...prev, seat]
+    );
+  };
+
+  const renderSeats = (section, row, seatCount, sectionName) => {
+    return Array.from({ length: seatCount }, (_, i) => {
+      const seatId = `${section}-${row}${i + 1}`;
+      const isSelected = selectedSeats.includes(seatId);
+      return (
+        <circle
+          key={seatId}
+          cx={50 + i * 25}
+          cy={50}
+          r={10}
+          fill={isSelected ? "orange" : sectionName === "VIP" ? "green" : "blue"}
+          onClick={() => toggleSeat(seatId)}
+          style={{ cursor: "pointer" }}
+        />
+      );
     });
-    return seatArray;
   };
 
-  // 🎯 **Define VIP Sections**
-  const vipSeats = [
-    // 101 & 104 Curved
-    ...generateSeats("101", "ABCDEFGHIJKLMN".split(""), [3, 5, 7, 9, 11, 13, 15, 17, 17, 15, 13, 11, 9], 100, 50, true),
-    ...generateSeats("104", "ABCDEFGHIJKLMN".split(""), [3, 5, 7, 9, 11, 13, 15, 17, 17, 15, 13, 11, 9], 1100, 50, true),
-    // 102 & 103 Triangular
-    ...generateSeats("102", "ABCDEFGHIJKL".split(""), [8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19], 400, 50),
-    ...generateSeats("103", "ABCDEFGHIJKL".split(""), [8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19], 800, 50),
-  ];
-
-  // 🎯 **Generate General Admission Sections**
-  const generateGASection = (section, startRow, numRows, cols, offsetX, offsetY) => {
-    const seatArray = [];
-    for (let r = 0; r < numRows; r++) {
-      const rowLabel =
-        r < 26 ? String.fromCharCode(startRow.charCodeAt(0) + r) : "A" + String.fromCharCode(65 + (r - 26));
-      for (let i = 1; i <= cols; i++) {
-        seatArray.push({
-          id: `${section}-${rowLabel}${i}`,
-          section,
-          row: rowLabel,
-          x: offsetX + (i - 1) * 15,
-          y: offsetY + r * 15,
-          available: true,
-        });
-      }
-    }
-    return seatArray;
+  const renderVIPSection = (sectionNum) => {
+    const section = sections.VIP[sectionNum];
+    return (
+      <g key={`VIP-${sectionNum}`}>
+        {section.rows.map((row, idx) =>
+          renderSeats(sectionNum, row, section.seats[idx], "VIP")
+        )}
+      </g>
+    );
   };
 
-  const gaSeats = [
-    ...generateGASection("201", "A", 32, 12, 100, 400),
-    ...generateGASection("202", "A", 32, 12, 400, 400),
-    ...generateGASection("203", "A", 32, 12, 700, 400),
-    ...generateGASection("204", "A", 32, 12, 1000, 400),
-  ];
-
-  const allSeats = [...vipSeats, ...gaSeats];
-
-  // 🔄 **Handle Click Logic**
-  const handleSeatClick = (seatId) => {
-    if (selectedSeats.includes(seatId)) {
-      setSelectedSeats(selectedSeats.filter((id) => id !== seatId));
-    } else {
-      setSelectedSeats([...selectedSeats, seatId]);
-    }
-  };
-
-  useEffect(() => {
-    onSeatSelect(selectedSeats);
-  }, [selectedSeats, onSeatSelect]);
-
-  const getColor = (id) => {
-    if (selectedSeats.includes(id)) return "orange";
-    const seat = allSeats.find((s) => s.id === id);
-    if (!seat?.available) return "gray";
-    return seat.section.startsWith("20") ? "blue" : "green";
+  const renderGASection = (sectionNum) => {
+    const section = sections.GA[sectionNum];
+    return (
+      <g key={`GA-${sectionNum}`}>
+        {section.rows.map((row) =>
+          renderSeats(sectionNum, row, section.seats, "GA")
+        )}
+      </g>
+    );
   };
 
   return (
-    <div style={{ textAlign: "center", padding: "2rem" }}>
+    <div style={{ textAlign: "center" }}>
       <h2>🎟 Seat Picker Preview</h2>
-      <svg width="1600" height="1000">
-        <rect x="100" y="0" width="1200" height="30" fill="gray" />
-        <text x="600" y="20" fill="white">
-          STAGE
-        </text>
+      <svg width="1000" height="800" style={{ border: "1px solid #ccc" }}>
+        <rect x="0" y="0" width="1000" height="50" fill="gray" />
+        <text x="450" y="30" fill="white">STAGE</text>
 
-        {allSeats.map((seat) => (
-          <circle
-            key={seat.id}
-            cx={seat.x}
-            cy={seat.y}
-            r="5"
-            fill={getColor(seat.id)}
-            onClick={() => handleSeatClick(seat.id)}
-          />
-        ))}
+        {/* LED Walls */}
+        <rect x="0" y="50" width="100" height="50" fill="lightgray" />
+        <text x="20" y="80" fill="black">LED Wall</text>
+        <rect x="900" y="50" width="100" height="50" fill="lightgray" />
+        <text x="920" y="80" fill="black">LED Wall</text>
+
+        {/* VIP Sections */}
+        {renderVIPSection(101)}
+        {renderVIPSection(102)}
+        {renderVIPSection(103)}
+        {renderVIPSection(104)}
+
+        {/* GA Sections */}
+        {renderGASection(201)}
+        {renderGASection(202)}
+        {renderGASection(203)}
+        {renderGASection(204)}
       </svg>
+      <div>
+        <p>Selected Seats: {selectedSeats.join(", ")}</p>
+      </div>
     </div>
   );
 }
