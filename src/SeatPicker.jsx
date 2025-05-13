@@ -3,12 +3,12 @@ import React, { useState, useEffect } from "react";
 export default function SeatPicker({ onSeatSelect }) {
   const [selectedSeats, setSelectedSeats] = useState([]);
 
-  // 🎟️ **Generating Seats for Sections**
+  // 🎟️ **Generate VIP Sections**
   const generateSeats = (section, rows, seatsPerRow, offsetX, offsetY, curve = false) => {
     const seatArray = [];
     rows.forEach((row, rowIndex) => {
       for (let i = 0; i < seatsPerRow[rowIndex]; i++) {
-        const angleOffset = curve ? Math.sin(rowIndex * 0.2) * 15 : 0;
+        const angleOffset = curve ? Math.sin(rowIndex * 0.15) * 15 : 0;
         const xPosition = offsetX + (20 + angleOffset) * i;
         const yPosition = offsetY + 20 * rowIndex;
         seatArray.push({
@@ -26,17 +26,20 @@ export default function SeatPicker({ onSeatSelect }) {
 
   // 🎯 **Define VIP Sections**
   const vipSeats = [
+    // 101 & 104 Curved
     ...generateSeats("101", "ABCDEFGHIJKLMN".split(""), [3, 5, 7, 9, 11, 13, 15, 17, 17, 15, 13, 11, 9], 100, 50, true),
+    ...generateSeats("104", "ABCDEFGHIJKLMN".split(""), [3, 5, 7, 9, 11, 13, 15, 17, 17, 15, 13, 11, 9], 1100, 50, true),
+    // 102 & 103 Triangular
     ...generateSeats("102", "ABCDEFGHIJKL".split(""), [8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19], 400, 50),
     ...generateSeats("103", "ABCDEFGHIJKL".split(""), [8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19], 800, 50),
-    ...generateSeats("104", "ABCDEFGHIJKLMN".split(""), [3, 5, 7, 9, 11, 13, 15, 17, 17, 15, 13, 11, 9], 1100, 50, true),
   ];
 
-  // 🎯 **Define GA Sections**
+  // 🎯 **Generate General Admission Sections**
   const generateGASection = (section, startRow, numRows, cols, offsetX, offsetY) => {
     const seatArray = [];
     for (let r = 0; r < numRows; r++) {
-      const rowLabel = String.fromCharCode(startRow.charCodeAt(0) + r);
+      const rowLabel =
+        r < 26 ? String.fromCharCode(startRow.charCodeAt(0) + r) : "A" + String.fromCharCode(65 + (r - 26));
       for (let i = 1; i <= cols; i++) {
         seatArray.push({
           id: `${section}-${rowLabel}${i}`,
@@ -52,10 +55,10 @@ export default function SeatPicker({ onSeatSelect }) {
   };
 
   const gaSeats = [
-    ...generateGASection("201", "A", 26, 12, 100, 400),
-    ...generateGASection("202", "A", 26, 12, 400, 400),
-    ...generateGASection("203", "A", 26, 12, 700, 400),
-    ...generateGASection("204", "A", 26, 12, 1000, 400),
+    ...generateGASection("201", "A", 32, 12, 100, 400),
+    ...generateGASection("202", "A", 32, 12, 400, 400),
+    ...generateGASection("203", "A", 32, 12, 700, 400),
+    ...generateGASection("204", "A", 32, 12, 1000, 400),
   ];
 
   const allSeats = [...vipSeats, ...gaSeats];
@@ -77,13 +80,13 @@ export default function SeatPicker({ onSeatSelect }) {
     if (selectedSeats.includes(id)) return "orange";
     const seat = allSeats.find((s) => s.id === id);
     if (!seat?.available) return "gray";
-    return seat.section.startsWith("GA") ? "blue" : "green";
+    return seat.section.startsWith("20") ? "blue" : "green";
   };
 
   return (
     <div style={{ textAlign: "center", padding: "2rem" }}>
       <h2>🎟 Seat Picker Preview</h2>
-      <svg width="1500" height="1000">
+      <svg width="1600" height="1000">
         <rect x="100" y="0" width="1200" height="30" fill="gray" />
         <text x="600" y="20" fill="white">
           STAGE
