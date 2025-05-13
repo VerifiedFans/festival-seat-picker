@@ -3,7 +3,7 @@ import React, { useState } from "react";
 const sections = {
   VIP: {
     101: { rows: ["A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L"], seats: [3, 5, 7, 9, 11, 13, 15, 17, 17, 15, 13, 11], curve: true },
-    102: { rows: ["A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L"], seats: [8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19], curve: false },
+    102: { rows: ["A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L"], seats: [4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15], curve: false, flip: true },
     103: { rows: ["A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L"], seats: [8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19], curve: false },
     104: { rows: ["A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L"], seats: [3, 5, 7, 9, 11, 13, 15, 17, 17, 15, 13, 11], curve: true },
   },
@@ -25,18 +25,16 @@ export default function SeatPicker({ onSelect }) {
     onSelect([...selectedSeats, seat]);
   };
 
-  const renderSeats = (section, row, seatCount, sectionName, curve, offsetX, offsetY) => {
+  const renderSeats = (section, row, seatCount, sectionName, curve, offsetX, offsetY, flip) => {
     return Array.from({ length: seatCount }, (_, i) => {
       const seatId = `${section}-${row}${i + 1}`;
       const isSelected = selectedSeats.includes(seatId);
 
-      const xPos = curve
-        ? offsetX + 20 * Math.sin(i / seatCount * Math.PI)
+      const xPos = flip
+        ? offsetX + (seatCount - i) * 20
         : offsetX + i * 20;
 
-      const yPos = curve
-        ? offsetY + 20 * Math.cos(i / seatCount * Math.PI)
-        : offsetY;
+      const yPos = offsetY;
 
       return (
         <circle
@@ -64,7 +62,8 @@ export default function SeatPicker({ onSelect }) {
             "VIP",
             section.curve,
             offsetX,
-            offsetY + idx * 20
+            offsetY + idx * 20,
+            section.flip
           )
         )}
       </g>
