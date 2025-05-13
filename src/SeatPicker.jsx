@@ -24,14 +24,15 @@ export default function SeatPicker({ onSeatSelect }) {
     return seatArray;
   };
 
-  // 🎯 **Define VIP and GA Sections**
+  // 🎯 **Define VIP Sections**
   const vipSeats = [
-    ...generateSeats("101", "ABCDEFGHIJKLM".split(""), [3, 5, 7, 9, 11, 13, 15, 17, 17, 15, 13, 11, 9], 100, 50, true),
+    ...generateSeats("101", "ABCDEFGHIJKLMN".split(""), [3, 5, 7, 9, 11, 13, 15, 17, 17, 15, 13, 11, 9], 100, 50, true),
     ...generateSeats("102", "ABCDEFGHIJKL".split(""), [8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19], 400, 50),
     ...generateSeats("103", "ABCDEFGHIJKL".split(""), [8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19], 800, 50),
-    ...generateSeats("104", "ABCDEFGHIJKLM".split(""), [3, 5, 7, 9, 11, 13, 15, 17, 17, 15, 13, 11, 9], 1100, 50, true),
+    ...generateSeats("104", "ABCDEFGHIJKLMN".split(""), [3, 5, 7, 9, 11, 13, 15, 17, 17, 15, 13, 11, 9], 1100, 50, true),
   ];
 
+  // 🎯 **Define GA Sections**
   const generateGASection = (section, startRow, numRows, cols, offsetX, offsetY) => {
     const seatArray = [];
     for (let r = 0; r < numRows; r++) {
@@ -50,12 +51,11 @@ export default function SeatPicker({ onSeatSelect }) {
     return seatArray;
   };
 
-  // 🎟️ **General Admission Sections**
   const gaSeats = [
-    ...generateGASection("201", "A", 26, 24, 100, 400),
-    ...generateGASection("202", "A", 26, 24, 500, 400),
-    ...generateGASection("203", "A", 26, 24, 500, 800),
-    ...generateGASection("204", "A", 26, 24, 900, 800),
+    ...generateGASection("201", "A", 26, 12, 100, 400),
+    ...generateGASection("202", "A", 26, 12, 400, 400),
+    ...generateGASection("203", "A", 26, 12, 700, 400),
+    ...generateGASection("204", "A", 26, 12, 1000, 400),
   ];
 
   const allSeats = [...vipSeats, ...gaSeats];
