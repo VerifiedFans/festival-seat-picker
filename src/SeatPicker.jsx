@@ -1,69 +1,82 @@
 import React, { useState } from "react";
-import SeatPicker from "react-seat-picker";
+import "./SeatPicker.css";
 
-export default function FestivalSeatPicker({ onSelect }) {
-  const [loading, setLoading] = useState(false);
+const SeatPicker = ({ onSeatSelect }) => {
   const [selectedSeats, setSelectedSeats] = useState([]);
 
-  const vipRows = [
-    [{ id: "101-A1" }, { id: "101-A2" }, { id: "101-A3" }],
-    [{ id: "101-B1" }, { id: "101-B2" }, { id: "101-B3" }, { id: "101-B4" }, { id: "101-B5" }],
-    [{ id: "101-C1" }, { id: "101-C2" }, { id: "101-C3" }, { id: "101-C4" }, { id: "101-C5" }, { id: "101-C6" }, { id: "101-C7" }],
-  ];
-
-  const gaRows = Array.from({ length: 26 }, (_, index) => {
-    return Array.from({ length: 12 }, (_, seatIndex) => ({
-      id: `201-${String.fromCharCode(65 + index)}${seatIndex + 1}`,
-    }));
-  });
-
-  const addSeatCallback = ({ row, number, id }, addCb) => {
-    setLoading(true);
-    console.log(`Added seat ${number}, row ${row}, id ${id}`);
-    addCb(row, number, id);
-    setLoading(false);
-
-    const updatedSeats = [...selectedSeats, id];
-    setSelectedSeats(updatedSeats);
-    onSelect(updatedSeats);
+  const sections = {
+    VIP: {
+      101: { rows: "ABCDEFGHIJKLMN", seats: [3, 5, 7, 9, 11, 13, 15, 17, 17, 15, 13, 11, 9] },
+      104: { rows: "ABCDEFGHIJKLMN", seats: [3, 5, 7, 9, 11, 13, 15, 17, 17, 15, 13, 11, 9] },
+      102: { rows: "ABCDEFGHIJKL", seats: [8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19] },
+      103: { rows: "ABCDEFGHIJKL", seats: [8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19] },
+    },
+    GA: {
+      201: { rows: "ABCDEFGHIJKLMNOPQRSTUVWXYZAAABACADAEAF", seats: 12 },
+      202: { rows: "ABCDEFGHIJKLMNOPQRSTUVWXYZAAABACADAEAF", seats: 12 },
+      203: { rows: "ABCDEFGHIJKLMNOPQRSTUVWXYZAAABACADAEAF", seats: 12 },
+      204: { rows: "ABCDEFGHIJKLMNOPQRSTUVWXYZAAABACADAEAF", seats: 12 },
+    },
   };
 
-  const removeSeatCallback = ({ row, number, id }, removeCb) => {
-    setLoading(true);
-    console.log(`Removed seat ${number}, row ${row}, id ${id}`);
-    removeCb(row, number);
-    setLoading(false);
+  const toggleSeat = (seatId) => {
+    setSelectedSeats((prev) =>
+      prev.includes(seatId)
+        ? prev.filter((seat) => seat !== seatId)
+        : [...prev, seatId]
+    );
+    onSeatSelect(seatId);
+  };
 
-    const updatedSeats = selectedSeats.filter((seat) => seat !== id);
-    setSelectedSeats(updatedSeats);
-    onSelect(updatedSeats);
+  const renderSection = (sectionName, sectionData, isVIP = false) => {
+    return Object.keys(sectionData).map((section) => (
+      <div key={section} className={`section ${isVIP ? "vip" : "ga"}`}>
+        <h4>{`Section ${section}`}</h4>
+        {sectionData[section].rows.split("").map((row, rowIndex) => (
+          <div key={row} className="row">
+            {Array.from(
+              { length: isVIP ? sectionData[section].seats[rowIndex] : sectionData[section].seats },
+              (_, seatIndex) => {
+                const seatId = `${section}-${row}${seatIndex + 1}`;
+                return (
+                  <div
+                    key={seatId}
+                    className={`seat ${selectedSeats.includes(seatId) ? "selected" : ""}`}
+                    onClick={() => toggleSeat(seatId)}
+                  >
+                    {seatIndex + 1}
+                  </div>
+                );
+              }
+            )}
+          </div>
+        ))}
+      </div>
+    ));
   };
 
   return (
-    <div>
-      <h2>🎟 Singing in the Smokies Ticket Selector</h2>
-      <h3>VIP Section</h3>
-      <SeatPicker
-        addSeatCallback={addSeatCallback}
-        removeSeatCallback={removeSeatCallback}
-        rows={vipRows}
-        maxReservableSeats={10}
-        alpha
-        visible
-        selectedByDefault
-        loading={loading}
-      />
-      <h3>GA Section</h3>
-      <SeatPicker
-        addSeatCallback={addSeatCallback}
-        removeSeatCallback={removeSeatCallback}
-        rows={gaRows}
-        maxReservableSeats={20}
-        alpha
-        visible
-        selectedByDefault
-        loading={loading}
-      />
+    <div className="seat-picker">
+      <div className="stage">
+        <div className="led-wall">LED Wall</div>
+        <div className="stage-text">STAGE</div>
+        <div className="led-wall">LED Wall</div>
+      </div>
+
+      <div className="vip-sections">
+        {renderSection("VIP", sections.VIP, true)}
+      </div>
+
+      <div className="ga-sections">
+        {renderSection("GA", sections.GA, false)}
+      </div>
+
+      <div className="selected-seats">
+        <h4>Selected Seats:</h4>
+        {selectedSeats.join(", ")}
+      </div>
     </div>
   );
-}
+};
+
+export default SeatPicker;
