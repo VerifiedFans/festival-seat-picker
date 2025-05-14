@@ -4,6 +4,7 @@ import "./SeatPicker.css";
 const SeatPicker = ({ onSeatSelect }) => {
   const [selectedSeats, setSelectedSeats] = useState([]);
 
+  // Section definitions
   const sections = {
     VIP: {
       101: { rows: "ABCDEFGHIJKLMN", seats: [3, 5, 7, 9, 11, 13, 15, 17, 17, 15, 13, 11, 9] },
@@ -19,6 +20,7 @@ const SeatPicker = ({ onSeatSelect }) => {
     },
   };
 
+  // Toggle seat selection
   const toggleSeat = (seatId) => {
     setSelectedSeats((prev) =>
       prev.includes(seatId)
@@ -28,6 +30,7 @@ const SeatPicker = ({ onSeatSelect }) => {
     onSeatSelect(seatId);
   };
 
+  // Render a section
   const renderSection = (sectionName, sectionData, isVIP = false) => {
     return Object.keys(sectionData).map((section) => (
       <div key={section} className={`section ${isVIP ? "vip" : "ga"}`}>
@@ -55,6 +58,7 @@ const SeatPicker = ({ onSeatSelect }) => {
     ));
   };
 
+  // Render the complete seating chart
   return (
     <div className="seat-picker">
       <div className="stage">
