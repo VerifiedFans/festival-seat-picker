@@ -1,86 +1,110 @@
-import React, { useState } from "react";
-import "./SeatPicker.css";
+/* General Layout */
+.seat-picker {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-top: 20px;
+}
 
-const SeatPicker = ({ onSeatSelect }) => {
-  const [selectedSeats, setSelectedSeats] = useState([]);
+/* Stage and LED Walls */
+.stage {
+  display: flex;
+  justify-content: space-between;
+  width: 80%;
+  margin-bottom: 20px;
+}
 
-  // Section definitions
-  const sections = {
-    VIP: {
-      101: { rows: "ABCDEFGHIJKLMN", seats: [3, 5, 7, 9, 11, 13, 15, 17, 17, 15, 13, 11, 9] },
-      104: { rows: "ABCDEFGHIJKLMN", seats: [3, 5, 7, 9, 11, 13, 15, 17, 17, 15, 13, 11, 9] },
-      102: { rows: "ABCDEFGHIJKL", seats: [8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19] },
-      103: { rows: "ABCDEFGHIJKL", seats: [8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19] },
-    },
-    GA: {
-      201: { rows: "ABCDEFGHIJKLMNOPQRSTUVWXYZAAABACADAEAF", seats: 12 },
-      202: { rows: "ABCDEFGHIJKLMNOPQRSTUVWXYZAAABACADAEAF", seats: 12 },
-      203: { rows: "ABCDEFGHIJKLMNOPQRSTUVWXYZAAABACADAEAF", seats: 12 },
-      204: { rows: "ABCDEFGHIJKLMNOPQRSTUVWXYZAAABACADAEAF", seats: 12 },
-    },
-  };
+.led-wall {
+  background-color: darkgray;
+  width: 15%;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-weight: bold;
+}
 
-  // Toggle seat selection
-  const toggleSeat = (seatId) => {
-    setSelectedSeats((prev) =>
-      prev.includes(seatId)
-        ? prev.filter((seat) => seat !== seatId)
-        : [...prev, seatId]
-    );
-    onSeatSelect(seatId);
-  };
+.stage-text {
+  background-color: #4a4a4a;
+  width: 60%;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-size: 18px;
+}
 
-  // Render a section
-  const renderSection = (sectionName, sectionData, isVIP = false) => {
-    return Object.keys(sectionData).map((section) => (
-      <div key={section} className={`section ${isVIP ? "vip" : "ga"}`}>
-        <h4>{`Section ${section}`}</h4>
-        {sectionData[section].rows.split("").map((row, rowIndex) => (
-          <div key={row} className="row">
-            {Array.from(
-              { length: isVIP ? sectionData[section].seats[rowIndex] : sectionData[section].seats },
-              (_, seatIndex) => {
-                const seatId = `${section}-${row}${seatIndex + 1}`;
-                return (
-                  <div
-                    key={seatId}
-                    className={`seat ${selectedSeats.includes(seatId) ? "selected" : ""}`}
-                    onClick={() => toggleSeat(seatId)}
-                  >
-                    {seatIndex + 1}
-                  </div>
-                );
-              }
-            )}
-          </div>
-        ))}
-      </div>
-    ));
-  };
+/* Section Headers */
+.section {
+  margin-bottom: 20px;
+}
 
-  // Render the complete seating chart
-  return (
-    <div className="seat-picker">
-      <div className="stage">
-        <div className="led-wall">LED Wall</div>
-        <div className="stage-text">STAGE</div>
-        <div className="led-wall">LED Wall</div>
-      </div>
+.section h4 {
+  text-align: center;
+  margin-bottom: 10px;
+  font-size: 16px;
+}
 
-      <div className="vip-sections">
-        {renderSection("VIP", sections.VIP, true)}
-      </div>
+/* Seat Layout */
+.row {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 5px;
+}
 
-      <div className="ga-sections">
-        {renderSection("GA", sections.GA, false)}
-      </div>
+.seat {
+  width: 25px;
+  height: 25px;
+  margin: 3px;
+  border-radius: 5px;
+  background-color: #1e3a8a;
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-size: 12px;
+}
 
-      <div className="selected-seats">
-        <h4>Selected Seats:</h4>
-        {selectedSeats.join(", ")}
-      </div>
-    </div>
-  );
-};
+.seat:hover {
+  background-color: #2563eb;
+}
 
-export default SeatPicker;
+.selected {
+  background-color: #4ade80 !important;
+}
+
+/* VIP Sections */
+.vip .seat {
+  background-color: #047857;
+}
+
+.vip .seat:hover {
+  background-color: #065f46;
+}
+
+/* GA Sections */
+.ga .seat {
+  background-color: #1e40af;
+}
+
+.ga .seat:hover {
+  background-color: #1d4ed8;
+}
+
+/* Aisles */
+.aisle {
+  width: 20px;
+}
+
+/* Selected Seats Display */
+.selected-seats {
+  margin-top: 20px;
+  text-align: center;
+}
+
+.selected-seats h4 {
+  margin-bottom: 5px;
+}
