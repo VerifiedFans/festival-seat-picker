@@ -16,41 +16,90 @@ export default function ContactForm({ selectedSeats }) {
 
   useEffect(() => {
     const vip = selectedSeats.filter((seat) =>
-      ["101", "102", "103", "104"].some((sec) => seat.startsWith(sec))
+      ["101", "102", "103", "104"].some((section) => seat.startsWith(section))
     );
     const ga = selectedSeats.filter((seat) =>
-      ["201", "202", "203", "204"].some((sec) => seat.startsWith(sec))
+      ["201", "202", "203", "204"].some((section) => seat.startsWith(section))
     );
 
     setVipSeats(vip);
     setGaSeats(ga);
-    setVipTotal(vip.length * 130);
-    setGaTotal(ga.length * 35);
-    setGrandTotal(vip.length * 130 + ga.length * 35);
+
+    // Calculate VIP Total
+    const vipPrice = vip.length * 130;
+    setVipTotal(vipPrice);
+
+    // Calculate GA Total
+    const gaPrice = ga.length * 35;
+    setGaTotal(gaPrice);
+
+    // Calculate Grand Total
+    setGrandTotal(vipPrice + gaPrice);
   }, [selectedSeats]);
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = (e) => {
     e.preventDefault();
-    alert("Form submitted with data: " + JSON.stringify(formData));
+    alert(`Thank you for your submission, ${formData.name}!`);
+    // Here you would integrate with Formspree or another backend API
   };
 
   return (
-    <form onSubmit={handleSubmit}>
+    <form onSubmit={handleSubmit} style={{ maxWidth: 600, margin: "0 auto" }}>
       <h2>Your Info</h2>
-      <input name="name" placeholder="Full Name" onChange={handleChange} required />
-      <input name="email" placeholder="Email" onChange={handleChange} required />
-      <input name="phone" placeholder="Phone Number" onChange={handleChange} required />
-      <input name="address" placeholder="Full Address" onChange={handleChange} required />
-      <div>
-        <p>VIP Seats: {vipSeats.length} | Total: ${vipTotal}</p>
-        <p>GA Seats: {gaSeats.length} | Total: ${gaTotal}</p>
-        <p>Grand Total: ${grandTotal}</p>
+
+      <input
+        name="name"
+        placeholder="Full Name"
+        value={formData.name}
+        onChange={handleChange}
+        required
+      />
+      <input
+        name="email"
+        type="email"
+        placeholder="Email"
+        value={formData.email}
+        onChange={handleChange}
+        required
+      />
+      <input
+        name="phone"
+        placeholder="Phone Number"
+        value={formData.phone}
+        onChange={handleChange}
+        required
+      />
+      <textarea
+        name="address"
+        placeholder="Full Address"
+        value={formData.address}
+        onChange={handleChange}
+        required
+      />
+
+      <div style={{ marginTop: 20 }}>
+        <h3>🟢 VIP Seats:</h3>
+        <p>
+          {vipSeats.length} selected | Total: ${vipTotal}
+        </p>
+        <p>{vipSeats.join(", ")}</p>
+
+        <h3>🔵 GA Seats:</h3>
+        <p>
+          {gaSeats.length} selected | Total: ${gaTotal}
+        </p>
+        <p>{gaSeats.join(", ")}</p>
+
+        <h3>💲 Grand Total: ${grandTotal}</h3>
       </div>
-      <button type="submit">Submit</button>
+
+      <button type="submit" style={{ marginTop: 20 }}>
+        Submit
+      </button>
     </form>
   );
 }
