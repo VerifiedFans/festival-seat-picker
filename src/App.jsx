@@ -1,14 +1,35 @@
 import React, { useState } from "react";
-import FestivalSeatPicker from "./SeatPicker";
+import SeatPicker from "./SeatPicker";
 import ContactForm from "./ContactForm";
+import "./App.css";
 
-export default function App() {
+const App = () => {
   const [selectedSeats, setSelectedSeats] = useState([]);
 
+  const handleSeatSelect = (seatId) => {
+    setSelectedSeats((prev) =>
+      prev.includes(seatId) ? prev.filter((seat) => seat !== seatId) : [...prev, seatId]
+    );
+  };
+
   return (
-    <div>
-      <FestivalSeatPicker onSelect={setSelectedSeats} />
-      <ContactForm selectedSeats={selectedSeats} />
+    <div className="app-container">
+      <h1>🎟 Singing in the Smokies Ticket Selector</h1>
+      
+      {/* Seat Picker Section */}
+      <div className="picker-container">
+        <SeatPicker onSeatSelect={handleSeatSelect} />
+      </div>
+
+      {/* Divider */}
+      <hr className="divider" />
+
+      {/* Contact Form Section */}
+      <div className="form-container">
+        <ContactForm selectedSeats={selectedSeats} />
+      </div>
     </div>
   );
-}
+};
+
+export default App;
